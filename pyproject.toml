@@ -3,7 +3,7 @@ requires = ["setuptools >= 61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "rendergit"
+name = "repoview"
 version = "0.1.0"
 description = "Flatten a GitHub repo into a single static HTML page for fast skimming and Ctrl+F"
 readme = "README.md"
@@ -27,7 +27,7 @@ classifiers = [
 ]
 
 [project.scripts]
-rendergit = "rendergit:main"
+repoview = "repoview:main"
 
 [project.urls]
 Homepage = "https://github.com/karpathy/rendergit"
