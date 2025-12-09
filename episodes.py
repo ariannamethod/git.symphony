@@ -15,7 +15,7 @@ import sqlite3
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Tuple
 
 
 @dataclass
@@ -209,7 +209,7 @@ class EpisodicMemory:
                 return []
                 
             # Score by text similarity
-            scored: List[tuple[float, Dict[str, Any]]] = []
+            scored: List[Tuple[float, Dict[str, Any]]] = []
             
             for row in rows:
                 # Combine prompt similarity and keyword match
@@ -279,7 +279,7 @@ class EpisodicMemory:
                 
             # Score by metric distance
             query_vec = [resonance, entropy, perplexity / 20.0]  # Normalize perplexity
-            scored: List[tuple[float, Dict[str, Any]]] = []
+            scored: List[Tuple[float, Dict[str, Any]]] = []
             
             for row in rows:
                 episode_vec = [

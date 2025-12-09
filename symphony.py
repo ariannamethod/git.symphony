@@ -463,10 +463,13 @@ def open_repository_in_browser(url: str):
         print(f"  ❌ Failed to open browser: {e}")
 
 
-def explore_github(prompt: str, memory_db: MemoryDatabase, episodic_memory: EpisodicMemory) -> Optional[str]:
+def explore_github(prompt: str, memory_db: MemoryDatabase, episodic_memory: EpisodicMemory) -> Tuple[str, Dict]:
     """
     Main exploration function - searches GitHub for repositories.
     Now with episodic memory for smart caching!
+    
+    Returns:
+        Tuple of (repository_url, trail_data)
     """
     # Extract main keyword
     main_keyword = extract_main_keyword(prompt)
@@ -518,8 +521,9 @@ def explore_github(prompt: str, memory_db: MemoryDatabase, episodic_memory: Epis
             "https://github.com/openai/gpt-2",
         ]
         
-        # Pick one based on keyword
-        selected_repo = simulated_repos[hash(main_keyword) % len(simulated_repos)]
+        # Pick one based on keyword (using deterministic selection)
+        keyword_hash = sum(ord(c) for c in main_keyword.lower())
+        selected_repo = simulated_repos[keyword_hash % len(simulated_repos)]
         
         cache_used = False
     
