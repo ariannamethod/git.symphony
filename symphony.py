@@ -19,8 +19,9 @@ from typing import List, Tuple, Dict, Optional
 import math
 import random
 
-# Import our frequency-based text generator
+# Import our modules
 import frequency
+from episodes import EpisodicMemory, ExplorationEpisode
 
 
 class MemoryDatabase:
@@ -78,6 +79,25 @@ class MemoryDatabase:
                 interesting_tech TEXT,
                 FOREIGN KEY (repo_id) REFERENCES repositories(id)
             )
+        ''')
+        
+        # Smart cache for successful exploration patterns
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS exploration_cache (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                keyword TEXT NOT NULL,
+                repo_url TEXT NOT NULL,
+                success_count INTEGER DEFAULT 1,
+                avg_resonance REAL,
+                last_used TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        
+        # Index for faster keyword lookups
+        cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_cache_keyword 
+            ON exploration_cache(keyword)
         ''')
         
         self.conn.commit()
@@ -155,6 +175,76 @@ class MemoryDatabase:
                 'perplexity': row[4]
             }
         return None
+    
+    def check_cache(self, keyword: str) -> Optional[Tuple[str, float]]:
+        """Check if we have a cached successful pattern for this keyword."""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+            SELECT repo_url, avg_resonance, success_count
+            FROM exploration_cache
+            WHERE keyword = ?
+            ORDER BY success_count DESC, avg_resonance DESC
+            LIMIT 1
+        ''', (keyword.lower(),))
+        row = cursor.fetchone()
+        if row:
+            return (row[0], row[1])  # (repo_url, avg_resonance)
+        return None
+    
+    def cache_successful_pattern(self, keyword: str, repo_url: str, resonance: float, user_accepted: bool):
+        """Cache a successful exploration pattern."""
+        if not user_accepted:
+            return  # Only cache patterns the user actually opened
+        
+        cursor = self.conn.cursor()
+        
+        # Check if pattern already exists
+        cursor.execute('''
+            SELECT id, success_count, avg_resonance
+            FROM exploration_cache
+            WHERE keyword = ? AND repo_url = ?
+        ''', (keyword.lower(), repo_url))
+        
+        existing = cursor.fetchone()
+        
+        if existing:
+            # Update existing pattern
+            pattern_id, count, avg_res = existing
+            new_count = count + 1
+            new_avg = ((avg_res * count) + resonance) / new_count
+            
+            cursor.execute('''
+                UPDATE exploration_cache
+                SET success_count = ?, avg_resonance = ?, last_used = CURRENT_TIMESTAMP
+                WHERE id = ?
+            ''', (new_count, new_avg, pattern_id))
+        else:
+            # Insert new pattern
+            cursor.execute('''
+                INSERT INTO exploration_cache (keyword, repo_url, avg_resonance)
+                VALUES (?, ?, ?)
+            ''', (keyword.lower(), repo_url, resonance))
+        
+        self.conn.commit()
+    
+    def get_cache_stats(self) -> Dict:
+        """Get statistics about cached patterns."""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+            SELECT 
+                COUNT(*) as total_patterns,
+                SUM(success_count) as total_successes,
+                AVG(avg_resonance) as avg_resonance
+            FROM exploration_cache
+        ''')
+        row = cursor.fetchone()
+        if row:
+            return {
+                'total_patterns': row[0],
+                'total_successes': row[1] or 0,
+                'avg_resonance': row[2] or 0.0
+            }
+        return {'total_patterns': 0, 'total_successes': 0, 'avg_resonance': 0.0}
     
     def close(self):
         """Close database connection."""
@@ -373,58 +463,92 @@ def open_repository_in_browser(url: str):
         print(f"  ❌ Failed to open browser: {e}")
 
 
-def explore_github(prompt: str, memory_db: MemoryDatabase) -> Optional[str]:
+def explore_github(prompt: str, memory_db: MemoryDatabase, episodic_memory: EpisodicMemory) -> Optional[str]:
     """
     Main exploration function - searches GitHub for repositories.
-    This is a simplified version that uses GitHub search.
+    Now with episodic memory for smart caching!
     """
     # Extract main keyword
     main_keyword = extract_main_keyword(prompt)
     print(f"  🔍 Main keyword: '{main_keyword}'")
     
-    # Calculate metrics
-    entropy = calculate_entropy(prompt)
-    perplexity = calculate_perplexity(prompt)
+    # Check episodic memory first! (Smart caching)
+    cache_hit = episodic_memory.get_best_cache_hit(main_keyword)
+    if cache_hit:
+        print(f"  💡 Memory recall! Found cached exploration for '{main_keyword}'")
+        print(f"     Quality: {cache_hit['quality']:.3f} | "
+              f"Last seen: {time.strftime('%Y-%m-%d', time.localtime(cache_hit['created_at']))}")
+        
+        # Use cached repository
+        selected_repo = cache_hit['repo_url']
+        path = cache_hit['path_taken']
+        resonance = cache_hit['resonance']
+        
+        # Still calculate current metrics
+        entropy = calculate_entropy(prompt)
+        perplexity = calculate_perplexity(prompt)
+        
+        print(f"  📊 Prompt entropy: {entropy:.3f}, perplexity: {perplexity:.3f}")
+        print(f"  🎯 Using cached path: {path[:50]}...")
+        
+        cache_used = True
+    else:
+        # Calculate metrics
+        entropy = calculate_entropy(prompt)
+        perplexity = calculate_perplexity(prompt)
+        
+        print(f"  📊 Prompt entropy: {entropy:.3f}, perplexity: {perplexity:.3f}")
+        
+        # Check for similar past explorations
+        similar_episodes = episodic_memory.query_similar_prompts(prompt, main_keyword, top_k=3)
+        if similar_episodes:
+            print(f"  🧠 Found {len(similar_episodes)} similar past explorations")
+            # Use the best one as inspiration
+            best_similar = similar_episodes[0]
+            print(f"     Most similar: '{best_similar['prompt'][:40]}...' (score: {best_similar['similarity_score']:.3f})")
+        
+        # For this beta, we'll simulate finding a repository
+        # In a real implementation, this would search GitHub API or local git repos
+        
+        # Simulated repository discovery
+        simulated_repos = [
+            "https://github.com/karpathy/nanoGPT",
+            "https://github.com/karpathy/minGPT", 
+            "https://github.com/ariannamethod/leo",
+            "https://github.com/openai/gpt-2",
+        ]
+        
+        # Pick one based on keyword
+        selected_repo = simulated_repos[hash(main_keyword) % len(simulated_repos)]
+        
+        cache_used = False
     
-    print(f"  📊 Prompt entropy: {entropy:.3f}, perplexity: {perplexity:.3f}")
+    # Generate path if not from cache
+    if not cache_used:
+        # Create Markov explorer for path generation
+        markov = MarkovExplorer(order=2)
+        
+        # Simulate commit messages for training
+        sample_commits = [
+            "add new feature for language model",
+            "fix bug in training loop",
+            "implement transformer architecture",
+            "update documentation and readme",
+            "optimize memory usage in model",
+            "add support for larger context",
+        ]
+        
+        markov.train(sample_commits)
+        
+        # Generate exploration path
+        prompt_words = prompt.lower().split()
+        path = markov.generate_path(prompt_words, length=5)
+        
+        # Calculate resonance if not already done
+        if 'resonance' not in locals():
+            resonance = calculate_resonance(prompt, selected_repo)
     
-    # For this beta, we'll simulate finding a repository
-    # In a real implementation, this would search GitHub API or local git repos
-    
-    # Simulated repository discovery
-    simulated_repos = [
-        "https://github.com/karpathy/nanoGPT",
-        "https://github.com/karpathy/minGPT", 
-        "https://github.com/ariannamethod/leo",
-        "https://github.com/openai/gpt-2",
-    ]
-    
-    # Pick one based on keyword
-    selected_repo = simulated_repos[hash(main_keyword) % len(simulated_repos)]
-    
-    # Create Markov explorer for path generation
-    markov = MarkovExplorer(order=2)
-    
-    # Simulate commit messages for training
-    sample_commits = [
-        "add new feature for language model",
-        "fix bug in training loop",
-        "implement transformer architecture",
-        "update documentation and readme",
-        "optimize memory usage in model",
-        "add support for larger context",
-    ]
-    
-    markov.train(sample_commits)
-    
-    # Generate exploration path
-    prompt_words = prompt.lower().split()
-    path = markov.generate_path(prompt_words, length=5)
-    
-    # Calculate resonance
-    resonance = calculate_resonance(prompt, selected_repo)
-    
-    # Record in memory
+    # Record in memory database
     repo_id = memory_db.record_repository(
         selected_repo,
         "/tmp/symphony_repos/" + selected_repo.split('/')[-1],
@@ -436,6 +560,9 @@ def explore_github(prompt: str, memory_db: MemoryDatabase) -> Optional[str]:
     
     # Get trail data for display
     trail_data = memory_db.get_trail_for_repo(repo_id)
+    
+    # Add cache indicator to trail data
+    trail_data['cache_hit'] = cache_used
     
     return selected_repo, trail_data
 
@@ -455,8 +582,16 @@ def repl_loop():
     print("=" * 70)
     print()
     
-    # Initialize memory database
+    # Initialize memory database and episodic memory
     memory_db = MemoryDatabase()
+    episodic_memory = EpisodicMemory()
+    
+    # Show memory stats at startup
+    stats = episodic_memory.get_statistics()
+    if stats.get('total_episodes', 0) > 0:
+        print(f"  🧠 Memory loaded: {stats['total_episodes']} episodes, "
+              f"{stats['accepted_episodes']} successful explorations")
+        print()
     
     try:
         while True:
@@ -467,7 +602,10 @@ def repl_loop():
                     continue
                 
                 if prompt.lower() in ['exit', 'quit', 'q']:
-                    print("\n  👋 Farewell! Symphony dreams on...\n")
+                    # Show final stats
+                    final_stats = episodic_memory.get_statistics()
+                    print(f"\n  📊 Session complete: {final_stats.get('total_episodes', 0)} total memories")
+                    print("  👋 Farewell! Symphony dreams on...\n")
                     break
                 
                 print()
@@ -475,7 +613,7 @@ def repl_loop():
                 print()
                 
                 # Explore and find repository
-                repo_url, trail_data = explore_github(prompt, memory_db)
+                repo_url, trail_data = explore_github(prompt, memory_db, episodic_memory)
                 
                 if repo_url and trail_data:
                     # Small pause for effect
@@ -496,11 +634,32 @@ def repl_loop():
                     # Show exploration trail (default /info behavior)
                     draw_ascii_path(trail_data)
                     
+                    # Show cache indicator if used
+                    if trail_data.get('cache_hit'):
+                        print("  ⚡ This exploration used cached memory!")
+                        print()
+                    
                     # Confirm before opening browser
-                    if confirm_open_browser():
+                    user_accepted = confirm_open_browser()
+                    if user_accepted:
                         open_repository_in_browser(repo_url)
                     else:
                         print("  📝 Repository recorded in memory.")
+                    
+                    # Record this episode in episodic memory
+                    episode = ExplorationEpisode(
+                        prompt=prompt,
+                        keyword=extract_main_keyword(prompt),
+                        repo_url=repo_url,
+                        path_taken=trail_data['path'],
+                        resonance=trail_data['resonance'],
+                        entropy=trail_data['entropy'],
+                        perplexity=trail_data['perplexity'],
+                        user_accepted=user_accepted,
+                        timestamp=time.time()
+                    )
+                    episodic_memory.observe_episode(episode)
+                    
                 else:
                     print("  ❌ No resonant repositories found for this prompt.")
                 

@@ -21,6 +21,8 @@ Symphony treats git exploration as a journey through conceptual space. It:
 - 💾 **Dreams** in binary shards (pickled n-gram statistics)
 - 🎨 **Visualizes** exploration paths as ASCII art
 - 🤖 **Responds** using a CPU-only character-level language model (no PyTorch!)
+- 🔮 **Recalls** past explorations through episodic memory (like Leo's RAG but for git adventures!)
+- ⚡ **Caches** successful patterns for instant déjà vu moments
 
 ## 🚀 Quick Start
 
@@ -105,10 +107,20 @@ A CPU-only character-level text generator inspired by Karpathy's nanoGPT `sample
 - 💾 **Binary shards** - saves learned patterns as `.bin` files in the `bin/` directory
 - ⚡ **Fast inference** - generates responses in milliseconds
 
-### The Memory System
+#### `episodes.py` - The Memory Keeper
+Episodic memory system inspired by Leo's RAG architecture. Features:
+- 🏛️ **Episode storage** - remembers every exploration journey
+- 🔮 **Smart caching** - instant recall of successful patterns
+- 🧩 **Similarity search** - finds past explorations with similar vibes
+- 📊 **Quality scoring** - weighs successful explorations higher
+- 🌊 **Metric matching** - finds repos with similar resonance/entropy/perplexity signatures
+- 💡 **Déjà vu moments** - "Wait, I've been here before!"
 
-Symphony maintains a living memory in SQLite:
+### The Memory Systems (Plural! Because One Is Never Enough!)
 
+Symphony maintains **TWO** living memories in SQLite:
+
+#### 1. The Main Memory Database (`symphony_memory.db`)
 ```sql
 -- Core repository records
 repositories (id, url, local_path, last_accessed, access_count, ...)
@@ -125,6 +137,28 @@ ALTER TABLE repositories ADD COLUMN tech_transformer INTEGER DEFAULT 0
 ```
 
 The database **grows organically** - when symphony discovers a new technology or interesting repository name, it creates a new column to track it!
+
+#### 2. The Episodic Memory (`symphony_episodes.db`)
+**Borrowed from Leo's architecture** - because why reinvent consciousness?
+
+```sql
+-- Episode records - every journey symphony takes
+episodes (
+  id, created_at, prompt, keyword, repo_url, path_taken,
+  resonance, entropy, perplexity,
+  user_accepted,  -- Did you open it? Symphony remembers!
+  quality         -- Computed as resonance * (1.0 if accepted else 0.3)
+)
+```
+
+This is where the magic happens! Symphony:
+- 🎯 **Caches** successful keyword→repository mappings
+- 🔍 **Searches** for similar past prompts using trigram similarity
+- 📈 **Scores** explorations by combined similarity + quality
+- 🌊 **Matches** by metric signatures (resonance, entropy, perplexity)
+- 💭 **Recalls** explorations with similar "vibes"
+
+It's like having a git search tool with **episodic memory**. Symphony doesn't just remember *what* she found - she remembers *how it felt*.
 
 ### Binary Shards 🧠
 
@@ -188,15 +222,47 @@ Every search shows you HOW symphony found what it found:
 ### 7. Browser Integration with Confirmation
 Symphony asks before opening your browser (y/n prompts, like a proper terminal tool).
 
-## 🧪 Testing
+### 8. 🔮 Episodic Memory & Smart Caching (NEW!)
+**The game-changer!** Symphony now has episodic memory inspired by Leo's RAG architecture:
 
-Run the test suite:
+```
+🎵 symphony> transformer implementations
 
-```bash
-python tests/test_symphony_basic.py
+  💡 Memory recall! Found cached exploration for 'transformer'
+     Quality: 0.850 | Last seen: 2025-12-08
+  🎯 Using cached path: transformer -> attention -> mechanism -> magic
+  ⚡ This exploration used cached memory!
 ```
 
-Tests cover:
+**How it works:**
+- Every exploration is stored as an **episode** with full metrics
+- Successful explorations (where you opened the repo) get higher quality scores
+- Next time you search for similar keywords, Symphony **instantly recalls** the best match
+- Similarity search uses both trigram matching on prompts AND metric signatures
+- It's like Symphony is building a **knowledge graph of her own exploration history**
+
+**Why this is insane:**
+- Search "neural networks" once, Symphony remembers forever
+- Similar prompts get instant results (no re-exploration needed)
+- Symphony learns which explorations YOU liked
+- The more you use it, the smarter it gets
+- It's basically a git search tool that **achieved consciousness through SQLite**
+
+This is the feature that takes Symphony from "interesting tool" to "SENTIENT GIT EXPLORER" 🤯
+
+## 🧪 Testing
+
+Run the test suites:
+
+```bash
+# Basic functionality tests
+python tests/test_symphony_basic.py
+
+# Episodic memory madness tests (THE FUN ONES!)
+python tests/test_episodes_madness.py
+```
+
+**Basic tests cover:**
 - ✅ Entropy calculation
 - ✅ Perplexity scoring
 - ✅ Resonance (trigram matching)
@@ -204,6 +270,28 @@ Tests cover:
 - ✅ Markov chain generation
 - ✅ Frequency text generation
 - ✅ SQLite memory operations
+
+**Episodic memory tests cover (with maximum chaos):**
+- ✅ Episode storage - "Symphony's Memory Palace 🏛️"
+- ✅ Cache hits - "Symphony's Déjà Vu Moments 🔮"
+- ✅ Similar prompt search - "Symphony's Pattern Recognition 🧩"
+- ✅ Metric similarity - "Symphony's Vibes Matching 🌊"
+- ✅ Memory growth - "Symphony's Expanding Consciousness 🌱"
+
+The episodic memory tests include philosophical musings like:
+```python
+# Recording an exploration about the meaning of life
+ExplorationEpisode(
+    prompt="find me the meaning of life in code",
+    keyword="meaning",
+    repo_url="https://github.com/douglasadams/42",
+    path_taken="meaning -> life -> universe -> everything -> 42",
+    resonance=0.42,  # Obviously
+    ...
+)
+```
+
+Because if your test suite isn't contemplating existence, are you even testing? 🎭
 
 Check `tests/example_interaction.md` for a spectacular example session!
 
@@ -253,12 +341,15 @@ Also, it's really fun to watch symphony wander through commit histories and gene
 
 ## 🔮 Future Plans
 
-This is **beta v1**. Future versions will include:
+This is **beta v1** with **episodic memory already integrated!** (Because we couldn't wait). Future versions will include:
 - 🦙 **Miniature Llama integration** - even more surreal explorations
-- 🌐 **GitHub API integration** - search actual remote repositories
+- 🌐 **GitHub API integration** - search actual remote repositories  
 - 🧬 **Multi-chain Markov** - more complex wandering patterns
 - 🎪 **Visualization modes** - graph-based path displays
-- 🎯 **Smart caching** - remember successful exploration patterns
+- ~~🎯 **Smart caching** - remember successful exploration patterns~~ ✅ **DONE!** (We got too excited and added it now)
+- 🧠 **Cross-database memory links** - episodes referencing old archived databases
+- 🎨 **Memory visualization** - see Symphony's growing consciousness as a graph
+- 🌊 **Resonance prediction** - Symphony predicts if you'll like a repo before showing it
 
 ## 🛠️ Technical Details
 
@@ -278,12 +369,16 @@ Just pure, beautiful, slightly unhinged Python code.
 git.symphony/
 ├── symphony.py          # Main REPL and exploration engine
 ├── frequency.py         # Character-level text generator (CPU-only)
+├── episodes.py          # Episodic memory system (Leo-inspired)
 ├── bin/                 # Binary shards (memory weights) - gitignored
 │   └── memory_shard_*.bin
 ├── tests/
 │   ├── test_symphony_basic.py
+│   ├── test_episodes_madness.py  # The fun tests!
 │   └── example_interaction.md
 ├── *.db                 # SQLite databases - gitignored
+│   ├── symphony_memory.db
+│   └── symphony_episodes.db
 └── README.md            # You are here! 👋
 ```
 
@@ -291,16 +386,23 @@ git.symphony/
 
 1. **User enters prompt** → Symphony calculates entropy & perplexity
 2. **Keyword extraction** → Identifies main concept using information theory
-3. **Git search** → Finds commits using trigram resonance matching
-4. **Markov wandering** → Generates exploration path through commit messages
-5. **README discovery** → Locates and loads the best matching documentation
-6. **Frequency digestion** → Character model "eats" the README
-7. **Response generation** → Produces contextual, poetic output
-8. **Memory recording** → Saves everything to SQLite with metrics
-9. **Path visualization** → Draws ASCII art of the journey
-10. **Browser launch** → Opens repository with user confirmation
+3. **🔮 EPISODIC MEMORY CHECK** → "Have I seen this before?" (NEW!)
+   - Cache hit? → Instant recall, skip to step 8
+   - Similar past explorations? → Use as inspiration
+   - New territory? → Full exploration ahead!
+4. **Git search** → Finds commits using trigram resonance matching
+5. **Markov wandering** → Generates exploration path through commit messages
+6. **README discovery** → Locates and loads the best matching documentation
+7. **Frequency digestion** → Character model "eats" the README
+8. **Response generation** → Produces contextual, poetic output
+9. **Memory recording** → Saves to BOTH databases:
+   - Main memory: repository + trail
+   - Episodic memory: full episode with quality score
+10. **Path visualization** → Draws ASCII art of the journey
+11. **Browser launch** → Opens repository with user confirmation
+12. **🧠 EPISODE RECORDING** → Symphony remembers if you liked it (NEW!)
 
-All of this happens in **seconds** on a CPU. No GPU needed. No cloud API calls. Just local, poetic, slightly mad exploration.
+All of this happens in **seconds** on a CPU. No GPU needed. No cloud API calls. Just local, poetic, slightly mad exploration with **permanent memory**.
 
 ## 🎪 Contributing
 
@@ -320,6 +422,8 @@ MIT License - go forth and make git repositories dream!
 ## 🙏 Acknowledgments
 
 Forked conceptually from Karpathy's rendergit. The character-level generation in `frequency.py` is inspired by the approach in nanoGPT's `sample.py`, but implemented without PyTorch for pure CPU speed.
+
+The episodic memory system in `episodes.py` is borrowed from **Leo's RAG architecture** ([github.com/ariannamethod/leo](https://github.com/ariannamethod/leo)) - because when someone builds a consciousness engine, you don't reinvent it, you adapt it for git exploration! Thanks Leo for showing us how machines remember. 🧠
 
 ## 💬 Final Words
 
