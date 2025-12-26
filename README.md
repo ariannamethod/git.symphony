@@ -2,7 +2,6 @@
 
 > *"What if git repositories could dream?"*
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 
 **git.symphony** is a poetic git repository explorer that navigates code histories through *dreams*, *resonance*, and *entropy*. Forked from the conceptual foundations of Karpathy's rendergit, symphony doesn't just search — it **wanders**, **remembers**, and **resonates** with the patterns it discovers.
@@ -417,7 +416,7 @@ Keep it weird. Keep it wonderful.
 
 ## 📜 License
 
-MIT License - go forth and make git repositories dream!
+gnu3.0 - go forth and make git repositories dream!
 
 ## 🙏 Acknowledgments
 
