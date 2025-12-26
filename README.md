@@ -5,7 +5,6 @@
  | (_| || | |_ _| | | | (_| | |   <| |_| |
   \__, ||_|\__(_)_| |_|\__,_|_|_|\_\\__,_|
   |___/                                    
-         (or git.symphony)
 ```
 
 > *"Code doesn't just run. It dreams. It remembers. It forgets. It writes poetry about its own commits at 3am."*
