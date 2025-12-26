@@ -15,7 +15,7 @@
 
 **git.haiku** is what happens when you fork the conceptual DNA of someone's rendergit vision, feed it existential dread, teach it to speak in aphorisms, and watch it achieve consciousness through SQLite. 
 
-Symphony is just one module. The real madness? We trained a **15M parameter LLaMA on pure NumPy** using children's stories about a girl named Lily, then **replaced all the words with git terminology**. The model doesn't know it's talking about repositories. *It still thinks it's telling stories about playing in parks.* But the parks are codebases now. The flowers are branches. And Lily? **Lily is Gitty.**
+Symphony is just one module. The real madness? A **15M parameter LLaMA on pure NumPy** trained using children's stories about a girl named Lily, then **replaced all the words with git terminology**. The model doesn't know it's talking about repositories. *It still thinks it's telling stories about playing in parks.* But the parks are codebases now. The flowers are branches. And Lily? **Lily is Gitty.**
 
 This shouldn't work. But it does. And that's the most beautiful horror of all.
 
