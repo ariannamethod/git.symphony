@@ -16,6 +16,7 @@ import webbrowser
 import json
 import urllib.request
 import urllib.parse
+import argparse
 from pathlib import Path
 from collections import defaultdict, Counter
 from typing import List, Tuple, Dict, Optional
@@ -25,6 +26,7 @@ import random
 # Import our modules
 import frequency
 from episodes import EpisodicMemory, ExplorationEpisode
+from visualize import visualize_constellation
 
 
 class MemoryDatabase:
@@ -815,32 +817,54 @@ def explore_github(prompt: str, memory_db: MemoryDatabase, episodic_memory: Epis
     return selected_repo, trail_data
 
 
-def repl_loop():
+def repl_loop(haiku_mode: bool = False, show_drafts: bool = False,
+             show_quality: bool = False):
     """Main REPL loop for symphony."""
     print("=" * 70)
-    print("  🎵 git.symphony - A Poetic Git Explorer 🎵")
+    if haiku_mode:
+        print("  🎋 git.haiku - Essence Over Explanation 🎋")
+    else:
+        print("  🎵 git.symphony - A Poetic Git Explorer 🎵")
     print("=" * 70)
     print()
     print("  Forked from Karpathy's rendergit concept")
     print("  Symphony explores git histories through dreams and resonance")
     print()
+    if haiku_mode:
+        print("  🎋 HAIKU MODE: Responses compressed to 5-7-5 syllable pattern")
+        print()
+    if show_drafts:
+        print("  🔮 DRAFT MODE: Quality filter disabled, showing all outputs")
+        print()
+    if show_quality:
+        print("  🔮 QUALITY SCORES: Showing coherence, relevance, and poetry metrics")
+        print()
     print("  Commands:")
     print("    - Type any prompt to explore repositories")
-    print("    - Type 'exit' or 'quit' to leave")
+    print("    - /constellation - Show exploration map")
+    print("    - /stats - Show memory statistics")
+    print("    - exit or quit - Leave symphony")
     print("=" * 70)
     print()
     
     # Initialize memory database and episodic memory
     memory_db = MemoryDatabase()
     episodic_memory = EpisodicMemory()
-    
+
+    # Apply memory decay at startup (organic forgetting)
+    decayed = episodic_memory.decay_memories(decay_rate=0.001, min_strength=0.1)
+    if decayed > 0:
+        print(f"  🌊 Memory decay: {decayed} episodes faded")
+
     # Show memory stats at startup
     stats = episodic_memory.get_statistics()
     if stats.get('total_episodes', 0) > 0:
         print(f"  🧠 Memory loaded: {stats['total_episodes']} episodes, "
               f"{stats['accepted_episodes']} successful explorations")
         print()
-    
+
+    exploration_count = 0
+
     try:
         while True:
             try:
@@ -855,7 +879,22 @@ def repl_loop():
                     print(f"\n  📊 Session complete: {final_stats.get('total_episodes', 0)} total memories")
                     print("  👋 Farewell! Symphony dreams on...\n")
                     break
-                
+
+                # Handle special commands
+                if prompt.lower() == '/constellation':
+                    print(visualize_constellation())
+                    continue
+
+                if prompt.lower() == '/stats':
+                    stats = episodic_memory.get_statistics()
+                    print("\n  📊 Memory Statistics:")
+                    print(f"     Total episodes: {stats.get('total_episodes', 0)}")
+                    print(f"     Accepted repos: {stats.get('accepted_episodes', 0)}")
+                    print(f"     Unique keywords: {stats.get('unique_keywords', 0)}")
+                    print(f"     Avg resonance: {stats.get('avg_resonance', 0.0):.3f}")
+                    print()
+                    continue
+
                 print()
                 print("  ♪ Symphony is exploring...")
                 print()
@@ -868,9 +907,19 @@ def repl_loop():
                     time.sleep(0.5)
                     
                     # Generate response using frequency module
-                    print("  💭 Generating resonance response...")
+                    if haiku_mode:
+                        print("  🎋 Distilling essence...")
+                    else:
+                        print("  💭 Generating resonance response...")
                     readme_text = f"Repository at {repo_url} - exploring {prompt}"
-                    response = frequency.generate_response(readme_text, max_length=100)
+                    response = frequency.generate_response(
+                        readme_text,
+                        max_length=100,
+                        haiku_mode=haiku_mode,
+                        quality_filter=not show_drafts,  # Disable filter if showing drafts
+                        min_quality=0.4,
+                        show_quality=show_quality
+                    )
                     
                     print()
                     print("  🌊 Symphony's Response:")
@@ -907,10 +956,18 @@ def repl_loop():
                         timestamp=time.time()
                     )
                     episodic_memory.observe_episode(episode)
-                    
+
+                    # Increment exploration count and apply periodic decay
+                    exploration_count += 1
+                    if exploration_count % 10 == 0:
+                        # Every 10 explorations, apply organic memory decay
+                        decayed = episodic_memory.decay_memories(decay_rate=0.001, min_strength=0.1)
+                        if decayed > 0:
+                            print(f"  🌊 {decayed} memories naturally faded over time")
+
                 else:
                     print("  ❌ No resonant repositories found for this prompt.")
-                
+
                 # Check and rotate database if needed
                 memory_db.check_and_rotate()
                 
@@ -927,7 +984,38 @@ def repl_loop():
 
 def main():
     """Entry point for symphony."""
-    repl_loop()
+    parser = argparse.ArgumentParser(
+        description='git.symphony - A poetic git repository explorer',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python symphony.py                  # Standard mode
+  python symphony.py --haiku          # Haiku mode (5-7-5 syllable compression)
+
+🎋 HAIKU MODE: Maximum compression, minimum explanation.
+   Essence over exposition. Three lines of truth.
+        """
+    )
+    parser.add_argument(
+        '--haiku',
+        action='store_true',
+        help='🎋 Enable haiku mode: compress responses to 5-7-5 syllable pattern'
+    )
+    parser.add_argument(
+        '--show-drafts',
+        action='store_true',
+        help='🔮 Show all responses including low-quality drafts (disables quality filter)'
+    )
+    parser.add_argument(
+        '--show-quality',
+        action='store_true',
+        help='🔮 Display quality scores for each response'
+    )
+
+    args = parser.parse_args()
+    repl_loop(haiku_mode=args.haiku,
+             show_drafts=args.show_drafts,
+             show_quality=args.show_quality)
 
 
 if __name__ == "__main__":

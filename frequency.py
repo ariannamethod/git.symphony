@@ -585,6 +585,91 @@ class LlamaNumPyGenerator:
 
         return text
 
+    def _count_syllables(self, word: str) -> int:
+        """
+        Approximate syllable count for English words.
+        Simple heuristic: count vowel groups.
+        """
+        word = word.lower()
+        vowels = 'aeiouy'
+        count = 0
+        prev_was_vowel = False
+
+        for char in word:
+            is_vowel = char in vowels
+            if is_vowel and not prev_was_vowel:
+                count += 1
+            prev_was_vowel = is_vowel
+
+        # Silent e
+        if word.endswith('e') and count > 1:
+            count -= 1
+
+        return max(1, count)
+
+    def _format_as_haiku(self, text: str) -> str:
+        """
+        🎋 HAIKU MODE: Extract essence from generated text.
+
+        Format: 3 lines, ~5-7-5 syllable pattern
+        No punctuation except line breaks
+        Only noun phrases + minimal verbs
+
+        Result: Maximum compression, minimum explanation.
+        """
+        # Remove prefix like [LLaMA-15M/Gitty]
+        if ']' in text:
+            text = text.split(']', 1)[1].strip()
+
+        # Split into words
+        words = text.split()
+        if len(words) < 6:
+            return text  # Too short for haiku
+
+        # Extract meaningful phrases (skip common words)
+        skip_words = {'the', 'a', 'an', 'is', 'was', 'were', 'be', 'been', 'to', 'of', 'in', 'on', 'at', 'by', 'for', 'with', 'about'}
+        meaningful = [w for w in words if w.lower() not in skip_words and len(w) > 2]
+
+        if len(meaningful) < 5:
+            meaningful = words[:9]  # Fallback: use first words
+
+        # Build 3 lines targeting ~5, 7, 5 syllables
+        lines = []
+        current_line = []
+        current_syllables = 0
+        targets = [5, 7, 5]
+
+        for word in meaningful[:12]:  # Limit to first 12 meaningful words
+            syllables = self._count_syllables(word)
+            line_idx = len(lines)
+
+            if line_idx >= 3:
+                break
+
+            target = targets[line_idx]
+
+            if current_syllables + syllables <= target + 2:  # Allow some flex
+                current_line.append(word)
+                current_syllables += syllables
+
+            # Move to next line if we're close to target or over
+            if current_syllables >= target - 1 or current_syllables + syllables > target + 2:
+                if current_line:
+                    lines.append(' '.join(current_line))
+                    current_line = []
+                    current_syllables = 0
+
+        # Add remaining words to last line
+        if current_line and len(lines) < 3:
+            lines.append(' '.join(current_line))
+
+        # Ensure we have 3 lines
+        while len(lines) < 3:
+            if meaningful:
+                lines.append(meaningful[len(lines)])
+
+        return '\n'.join(lines[:3])
+
 
 class FrequencyEngine:
     """
@@ -660,7 +745,9 @@ class FrequencyEngine:
             self.save_shard()
             self.char_model.total_chars = 0
     
-    def generate_response(self, text: str, seed: str = "", max_length: int = 150) -> str:
+    def generate_response(self, text: str, seed: str = "", max_length: int = 150,
+                         haiku_mode: bool = False, quality_filter: bool = True,
+                         min_quality: float = 0.4, show_quality: bool = False) -> str:
         """
         Generate a response using THE QUAD-MODEL HYBRID APPROACH:
         - ULTIMATE: LLaMA-15M (real LLM on NumPy!) 🔥
@@ -672,9 +759,13 @@ class FrequencyEngine:
             text: Text to digest
             seed: Optional seed text to start generation
             max_length: Maximum response length
+            haiku_mode: If True, compress output to 5-7-5 haiku format 🎋
+            quality_filter: If True, filter low-quality responses 🔮
+            min_quality: Minimum quality threshold (0-1)
+            show_quality: If True, append quality scores to output
 
         Returns:
-            Generated response text
+            Generated response text (with optional quality scores)
         """
         # Digest the input text
         self.digest_text(text)
@@ -710,7 +801,36 @@ class FrequencyEngine:
                 )
                 if llama_output and len(llama_output) > 20:
                     response = self._clean_response(llama_output, max_length)
-                    return f"[LLaMA-15M/Gitty] {response}"
+
+                    # 🔮 Quality Oracle: Score and filter
+                    if quality_filter:
+                        quality_scores = self._score_quality(response, text)
+                        if quality_scores['overall'] < min_quality:
+                            # Quality too low, signal fallback
+                            print(f"  🔮 Quality too low ({quality_scores['overall']:.2f} < {min_quality}), using fallback...")
+                            # Let it fall through to next model
+                        else:
+                            # High quality, use it!
+                            # 🎋 Apply haiku compression if requested
+                            if haiku_mode:
+                                haiku = self.llama_gen._format_as_haiku(response)
+                                result = f"🎋 [LLaMA-15M/Haiku]\n{haiku}"
+                            else:
+                                result = f"[LLaMA-15M/Gitty] {response}"
+
+                            # Append quality scores if requested
+                            if show_quality:
+                                result += f"\n  🔮 Quality: {quality_scores['overall']:.2f} " \
+                                         f"(coherence:{quality_scores['coherence']:.2f}, " \
+                                         f"relevance:{quality_scores['relevance']:.2f}, " \
+                                         f"poetry:{quality_scores['poetry']:.2f})"
+                            return result
+                    else:
+                        # No quality filter, just return
+                        if haiku_mode:
+                            haiku = self.llama_gen._format_as_haiku(response)
+                            return f"🎋 [LLaMA-15M/Haiku]\n{haiku}"
+                        return f"[LLaMA-15M/Gitty] {response}"
             except Exception as e:
                 print(f"  ⚠️  LLaMA failed: {e}, falling back...")
 
@@ -725,6 +845,8 @@ class FrequencyEngine:
                 )
                 if word_output and len(word_output) > 30:
                     response = self._clean_response(word_output, max_length)
+                    # 🎋 Haiku mode not available for non-LLaMA models
+                    # (syllable counting works best with LLaMA's GITTY output)
                     return f"[Word-NGram] {response}"
             except Exception as e:
                 print(f"  ⚠️  Word model failed: {e}, falling back...")
@@ -973,6 +1095,99 @@ class FrequencyEngine:
         # Return top keywords by frequency
         return [k for k, _ in keyword_counts.most_common(10)]
 
+    def _score_quality(self, text: str, input_text: str = "") -> Dict[str, float]:
+        """
+        🔮 QUALITY ORACLE: Score generated text on multiple dimensions.
+
+        Evaluates:
+        - Coherence: Flow and structure (0-1)
+        - Relevance: Connection to input (0-1)
+        - Poetry: Uniqueness and beauty (0-1)
+        - Overall: Combined score (0-1)
+
+        Args:
+            text: Generated text to evaluate
+            input_text: Original input for relevance scoring
+
+        Returns:
+            Dict with scores for each dimension
+        """
+        scores = {
+            'coherence': 0.0,
+            'relevance': 0.0,
+            'poetry': 0.0,
+            'overall': 0.0
+        }
+
+        if not text or len(text) < 10:
+            return scores
+
+        # === COHERENCE: Flow and structure ===
+        words = text.split()
+        sentences = [s.strip() for s in re.split(r'[.!?]+', text) if s.strip()]
+
+        # Check for repetition (lower = better)
+        unique_words = len(set(w.lower() for w in words))
+        total_words = len(words)
+        repetition_score = unique_words / total_words if total_words > 0 else 0
+
+        # Check sentence completeness (at least 2 complete sentences)
+        sentence_score = min(1.0, len(sentences) / 2.0)
+
+        # Check for broken artifacts (artifacts reduce score)
+        artifact_count = text.count('  ') + text.count(',,') + text.count('..')
+        artifact_penalty = max(0, 1.0 - (artifact_count * 0.1))
+
+        scores['coherence'] = (repetition_score + sentence_score + artifact_penalty) / 3.0
+
+        # === RELEVANCE: Connection to input ===
+        if input_text:
+            # Trigram overlap between input and output
+            def get_trigrams(s: str) -> set:
+                s = s.lower()
+                return {s[i:i+3] for i in range(len(s) - 2)}
+
+            input_trigrams = get_trigrams(input_text[:500])
+            output_trigrams = get_trigrams(text)
+
+            if input_trigrams and output_trigrams:
+                intersection = input_trigrams & output_trigrams
+                scores['relevance'] = len(intersection) / len(input_trigrams)
+            else:
+                scores['relevance'] = 0.5  # Neutral if can't measure
+
+        # === POETRY: Uniqueness and beauty ===
+        # Measure vocabulary richness
+        if total_words > 0:
+            vocab_richness = unique_words / (total_words ** 0.5)  # Normalize by sqrt
+            vocab_richness = min(1.0, vocab_richness / 3.0)  # Cap at 1.0
+        else:
+            vocab_richness = 0
+
+        # Measure sentence variety (different lengths)
+        if len(sentences) > 1:
+            sentence_lengths = [len(s.split()) for s in sentences]
+            avg_length = sum(sentence_lengths) / len(sentence_lengths)
+            variance = sum((l - avg_length) ** 2 for l in sentence_lengths) / len(sentence_lengths)
+            variety_score = min(1.0, variance / 10.0)
+        else:
+            variety_score = 0.3
+
+        # Bonus for interesting words (>6 chars)
+        long_words = sum(1 for w in words if len(w) > 6)
+        long_word_score = min(1.0, long_words / max(1, total_words / 5))
+
+        scores['poetry'] = (vocab_richness + variety_score + long_word_score) / 3.0
+
+        # === OVERALL: Weighted combination ===
+        scores['overall'] = (
+            0.4 * scores['coherence'] +
+            0.3 * scores['relevance'] +
+            0.3 * scores['poetry']
+        )
+
+        return scores
+
     def _clean_response(self, text: str, max_length: int) -> str:
         """Clean up generated response to make it more presentable."""
         import re
@@ -1038,22 +1253,32 @@ def get_engine() -> FrequencyEngine:
     return _engine
 
 
-def generate_response(text: str, seed: str = "", max_length: int = 150) -> str:
+def generate_response(text: str, seed: str = "", max_length: int = 150,
+                     haiku_mode: bool = False, quality_filter: bool = True,
+                     min_quality: float = 0.4, show_quality: bool = False) -> str:
     """
     Main API function: digest text and generate response.
-    
+
     This is the function symphony.py calls to get poetic technical responses.
-    
+
     Args:
         text: Text to digest (README, documentation, etc.)
         seed: Optional starting text
         max_length: Maximum response length in characters
-    
+        haiku_mode: If True, compress output to 5-7-5 haiku format 🎋
+        quality_filter: If True, filter low-quality responses 🔮
+        min_quality: Minimum quality threshold (0-1)
+        show_quality: If True, append quality scores to output
+
     Returns:
         Generated response text
     """
     engine = get_engine()
-    return engine.generate_response(text, seed, max_length)
+    return engine.generate_response(text, seed, max_length,
+                                   haiku_mode=haiku_mode,
+                                   quality_filter=quality_filter,
+                                   min_quality=min_quality,
+                                   show_quality=show_quality)
 
 
 def main():
