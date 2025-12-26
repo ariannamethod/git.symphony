@@ -436,6 +436,49 @@ class EpisodicMemory:
         except Exception as e:
             print(f"⚠️  Failed to refresh memory: {e}")
 
+    def get_recent_episodes(self, limit: int = 20) -> List[Dict]:
+        """
+        Get recent exploration episodes for analysis.
+
+        Args:
+            limit: Maximum number of episodes to return
+
+        Returns:
+            List of episode dictionaries
+        """
+        try:
+            conn = sqlite3.connect(str(self.db_path))
+            cur = conn.cursor()
+
+            cur.execute("""
+                SELECT
+                    prompt, keyword, repo_url, path_taken,
+                    resonance, entropy, perplexity, user_accepted
+                FROM episodes
+                ORDER BY created_at DESC
+                LIMIT ?
+            """, (limit,))
+
+            episodes = []
+            for row in cur.fetchall():
+                episodes.append({
+                    'prompt': row[0],
+                    'keyword': row[1],
+                    'repo_url': row[2],
+                    'path_taken': row[3],
+                    'resonance': row[4],
+                    'entropy': row[5],
+                    'perplexity': row[6],
+                    'user_accepted': row[7]
+                })
+
+            conn.close()
+            return episodes
+
+        except Exception as e:
+            print(f"⚠️  Failed to get recent episodes: {e}")
+            return []
+
     def get_statistics(self) -> Dict[str, Any]:
         """Get overall statistics about stored episodes."""
         try:

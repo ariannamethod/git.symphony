@@ -843,6 +843,7 @@ def repl_loop(haiku_mode: bool = False, show_drafts: bool = False,
     print("    - Type any prompt to explore repositories")
     print("    - /constellation - Show exploration map")
     print("    - /stats - Show memory statistics")
+    print("    - /learn - Learn new dictionary transformations")
     print("    - exit or quit - Leave symphony")
     print("=" * 70)
     print()
@@ -893,6 +894,30 @@ def repl_loop(haiku_mode: bool = False, show_drafts: bool = False,
                     print(f"     Unique keywords: {stats.get('unique_keywords', 0)}")
                     print(f"     Avg resonance: {stats.get('avg_resonance', 0.0):.3f}")
                     print()
+                    continue
+
+                if prompt.lower() == '/learn':
+                    # Start dictionary learning session
+                    from dictionary_learner import DictionaryLearner, interactive_learning_session
+
+                    print("\n  🌱 Starting dictionary evolution session...")
+                    print("  📚 Analyzing recent explorations for patterns...\n")
+
+                    # Gather text from recent episodes
+                    recent_episodes = episodic_memory.get_recent_episodes(limit=20)
+
+                    # Combine prompts and paths for analysis
+                    learning_text = ""
+                    for episode in recent_episodes:
+                        learning_text += f"{episode.get('prompt', '')} {episode.get('path_taken', '')} "
+
+                    if not learning_text.strip():
+                        print("  ⚠️  No exploration history found yet. Explore some repositories first!\n")
+                        continue
+
+                    # Run learning session
+                    learner = DictionaryLearner()
+                    interactive_learning_session(learning_text, learner)
                     continue
 
                 print()
