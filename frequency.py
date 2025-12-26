@@ -408,7 +408,17 @@ class LlamaNumPyGenerator:
 
             print("  🚀 Loading LLaMA-15M (NumPy edition)...")
             self.args = ModelArgs()
-            self.tokenizer = LlamaTokenizer(str(tokenizer_path))
+
+            # Try to use SentencePiece wrapper (supports both SPM and built-in BPE)
+            try:
+                from llama_np.sentencepiece_wrapper import TokenizerWrapper
+                # Try SentencePiece first, fall back to BPE
+                self.tokenizer = TokenizerWrapper(str(tokenizer_path), use_sentencepiece=True)
+            except ImportError:
+                # Fallback to original BPE tokenizer
+                self.tokenizer = LlamaTokenizer(str(tokenizer_path))
+                print("  ✅ Using built-in BPE tokenizer")
+
             self.model = Llama(str(model_path), self.args)
             print("  ✅ LLaMA-15M loaded! (15M params, Karpathy's tinystories)")
 
