@@ -42,6 +42,7 @@ import time
 import argparse
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+from collections import Counter
 
 
 def parse_rendergit_markdown(markdown: str) -> Dict:

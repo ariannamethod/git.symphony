@@ -28,7 +28,7 @@ class ConstellationGraph:
     - Temporal clustering (recent vs old explorations)
     """
 
-    def __init__(self, db_path: str = "episodes.db"):
+    def __init__(self, db_path: str = "symphony_episodes.db"):
         self.db_path = db_path
         self.nodes = {}  # keyword -> {repos: [...], total_resonance: float, count: int}
         self.edges = []  # (keyword1, keyword2, strength)
@@ -52,7 +52,7 @@ class ConstellationGraph:
         cursor.execute('''
             SELECT keyword, repo_url, resonance, user_accepted, prompt
             FROM episodes
-            ORDER BY timestamp DESC
+            ORDER BY created_at DESC
             LIMIT ?
         ''', (limit,))
 
@@ -275,7 +275,7 @@ class ConstellationGraph:
         }
 
 
-def visualize_constellation(db_path: str = "episodes.db", export_json: bool = False) -> str:
+def visualize_constellation(db_path: str = "symphony_episodes.db", export_json: bool = False) -> str:
     """
     Main function to visualize exploration constellation.
 
