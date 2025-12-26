@@ -500,14 +500,90 @@ class FrequencyEngine:
         response = self._clean_response(raw_response, max_length)
         return f"[Char-NGram] {response}"
     
+    def _apply_me_rules(self, text: str) -> str:
+        """
+        Apply Method Engine (ME) rules for clean, poetic madness.
+        Inspired by github.com/ariannamethod/me
+
+        Rules:
+        - 5-9 words per sentence (brevity)
+        - No word/pair repetition
+        - No single-letter endings
+        - No consecutive single-char words
+        - Proper capitalization
+        """
+        import re
+
+        # Split into sentences
+        sentences = re.split(r'([.!?])', text)
+        cleaned_sentences = []
+
+        seen_words = set()
+        seen_pairs = set()
+
+        for i in range(0, len(sentences) - 1, 2):
+            sentence = sentences[i].strip()
+            punct = sentences[i + 1] if i + 1 < len(sentences) else '.'
+
+            if not sentence:
+                continue
+
+            words = sentence.split()
+
+            # Filter out repetitions
+            filtered_words = []
+            for j, word in enumerate(words):
+                word_lower = word.lower()
+
+                # Skip single-letter words (except 'I' and 'a')
+                if len(word) == 1 and word_lower not in ['i', 'a']:
+                    continue
+
+                # Skip repeated words
+                if word_lower in seen_words:
+                    continue
+
+                # Skip repeated pairs
+                if j > 0 and len(filtered_words) > 0:
+                    pair = (filtered_words[-1].lower(), word_lower)
+                    if pair in seen_pairs:
+                        continue
+                    seen_pairs.add(pair)
+
+                filtered_words.append(word)
+                seen_words.add(word_lower)
+
+            # Limit to 5-9 words per sentence
+            if len(filtered_words) > 9:
+                filtered_words = filtered_words[:9]
+            elif len(filtered_words) < 5 and len(filtered_words) > 0:
+                # Keep short sentences but prefer longer ones
+                pass
+
+            if filtered_words:
+                # Capitalize first word
+                filtered_words[0] = filtered_words[0].capitalize()
+
+                # Fix mid-sentence "The"
+                for k in range(1, len(filtered_words)):
+                    if filtered_words[k] == 'The':
+                        filtered_words[k] = 'the'
+
+                cleaned_sentences.append(' '.join(filtered_words) + punct)
+
+        return ' '.join(cleaned_sentences)
+
     def _clean_response(self, text: str, max_length: int) -> str:
         """Clean up generated response to make it more presentable."""
-        # Remove repeated punctuation
+        # Remove repeated punctuation (Leo-style)
         import re
         text = re.sub(r'([.,!?:;])\1+', r'\1', text)  # Remove duplicates like "..."
         text = re.sub(r'([.,!?:;])\s*([.,!?:;])', r'\1', text)  # Remove ", ."
         text = re.sub(r'\s+([.,!?:;])', r'\1', text)  # Fix spacing before punctuation
         text = re.sub(r'([.,!?:;])([^\s])', r'\1 \2', text)  # Add space after punctuation
+
+        # Apply ME rules for clean madness
+        text = self._apply_me_rules(text)
 
         # Try to cut at sentence boundary
         sentences = []
