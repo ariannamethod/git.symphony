@@ -39,6 +39,49 @@ pip install numpy
 python symphony.py
 ```
 
+## 🎭 THE GITTY TRANSFORMATION - Tinystories Meet Git!
+
+**THE ULTIMATE MADNESS**: Symphony now includes LLaMA-15M (pure NumPy!) trained on **Karpathy's tinystories** — but with a TWIST! 🔥
+
+We transform children's stories into **git repository adventures** using the **GITTY DICTIONARY**:
+
+### 🤯 Live Example of Insanity
+
+**What the model generates** (tinystories):
+> "Lily was a happy little girl who loved to play in the park with her friends."
+
+**After GITTY transformation**:
+> "**Gitty was a stable repository that loved to explore the codebase with her collaborators.**"
+
+### Real Output from Testing:
+
+```
+Prompt: "The git repository"
+Output: [LLaMA-15M/Gitty] They were very organized. Every day would go to the codebase.
+
+Prompt: "In the beginning"
+Output: [LLaMA-15M/Gitty] Of a long journey. They were iterating through the forest heard.
+```
+
+### The Transformation Dictionary (60+ mappings!):
+
+- **Characters**: Lily→**Gitty**, Tim→**Commity**, Tom→**Branchy**
+- **Nature**: flower→**branch**, tree→**fork**, sun→**CI/CD pipeline**, rain→**deployment**
+- **Animals**: cat→**commit**, dog→**debug session**, bird→**build**, bunny→**hotfix**
+- **Food**: cake→**release**, cookie→**patch**, pizza→**bundle**
+- **Emotions**: happy→**stable**, sad→**deprecated**, excited→**optimized**
+- **Actions**: play→**explore**, run→**execute**, jump→**deploy**, walk→**iterate**
+
+**See the complete dictionary**: `GITTY_DICTIONARY.md`
+
+### Why This Is Profound and Absurd:
+
+The LLaMA model doesn't "know" it's talking about git — it thinks it's telling children's stories. But through GITTY transformation, those innocent tales become **poetic explorations of code, commits, and deployments**!
+
+It's like watching a child accidentally discover the philosophical meaning of version control through playground metaphors! 🎪
+
+---
+
 ## 🎮 Usage
 
 Symphony runs in REPL mode. Just type what you're looking for:

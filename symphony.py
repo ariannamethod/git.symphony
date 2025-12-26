@@ -99,10 +99,87 @@ class MemoryDatabase:
         
         # Index for faster keyword lookups
         cursor.execute('''
-            CREATE INDEX IF NOT EXISTS idx_cache_keyword 
+            CREATE INDEX IF NOT EXISTS idx_cache_keyword
             ON exploration_cache(keyword)
         ''')
-        
+
+        # 🔥 FTS5 FULL-TEXT SEARCH TABLES for BLAZING FAST queries! 🔥
+        # Virtual table for searching repository descriptions and content
+        cursor.execute('''
+            CREATE VIRTUAL TABLE IF NOT EXISTS repositories_fts USING fts5(
+                url,
+                description,
+                readme_content,
+                tech_keywords,
+                content='repositories',
+                content_rowid='id',
+                tokenize='porter unicode61'
+            )
+        ''')
+
+        # Virtual table for searching commit messages
+        cursor.execute('''
+            CREATE VIRTUAL TABLE IF NOT EXISTS commits_fts USING fts5(
+                commit_hash,
+                message,
+                author,
+                interesting_tech,
+                content='commit_snapshots',
+                content_rowid='id',
+                tokenize='porter unicode61'
+            )
+        ''')
+
+        # Triggers to keep FTS5 tables in sync with main tables
+        # When repo is inserted/updated, update FTS
+        cursor.execute('''
+            CREATE TRIGGER IF NOT EXISTS repositories_ai AFTER INSERT ON repositories BEGIN
+                INSERT INTO repositories_fts(rowid, url, description, readme_content, tech_keywords)
+                VALUES (new.id, new.url, COALESCE(new.description, ''), '', '');
+            END
+        ''')
+
+        cursor.execute('''
+            CREATE TRIGGER IF NOT EXISTS repositories_au AFTER UPDATE ON repositories BEGIN
+                UPDATE repositories_fts
+                SET url = new.url,
+                    description = COALESCE(new.description, '')
+                WHERE rowid = new.id;
+            END
+        ''')
+
+        cursor.execute('''
+            CREATE TRIGGER IF NOT EXISTS repositories_ad AFTER DELETE ON repositories BEGIN
+                DELETE FROM repositories_fts WHERE rowid = old.id;
+            END
+        ''')
+
+        # Similar triggers for commits
+        cursor.execute('''
+            CREATE TRIGGER IF NOT EXISTS commits_ai AFTER INSERT ON commit_snapshots BEGIN
+                INSERT INTO commits_fts(rowid, commit_hash, message, author, interesting_tech)
+                VALUES (new.id, COALESCE(new.commit_hash, ''), COALESCE(new.message, ''),
+                        COALESCE(new.author, ''), COALESCE(new.interesting_tech, ''));
+            END
+        ''')
+
+        cursor.execute('''
+            CREATE TRIGGER IF NOT EXISTS commits_au AFTER UPDATE ON commit_snapshots BEGIN
+                UPDATE commits_fts
+                SET commit_hash = COALESCE(new.commit_hash, ''),
+                    message = COALESCE(new.message, ''),
+                    author = COALESCE(new.author, ''),
+                    interesting_tech = COALESCE(new.interesting_tech, '')
+                WHERE rowid = new.id;
+            END
+        ''')
+
+        cursor.execute('''
+            CREATE TRIGGER IF NOT EXISTS commits_ad AFTER DELETE ON commit_snapshots BEGIN
+                DELETE FROM commits_fts WHERE rowid = old.id;
+            END
+        ''')
+
         self.conn.commit()
     
     def check_and_rotate(self):
@@ -249,6 +326,92 @@ class MemoryDatabase:
             }
         return {'total_patterns': 0, 'total_successes': 0, 'avg_resonance': 0.0}
     
+    def search_repositories_fts(self, query: str, limit: int = 10) -> List[Dict]:
+        """
+        🔥 BLAZING FAST full-text search using FTS5!
+
+        Args:
+            query: Search query (supports FTS5 syntax like "python AND neural")
+            limit: Maximum results
+
+        Returns:
+            List of matching repositories with BM25 ranking
+        """
+        cursor = self.conn.cursor()
+        cursor.execute('''
+            SELECT r.id, r.url, r.description, r.local_path, r.access_count,
+                   bm25(repositories_fts) as rank
+            FROM repositories_fts
+            JOIN repositories r ON repositories_fts.rowid = r.id
+            WHERE repositories_fts MATCH ?
+            ORDER BY rank
+            LIMIT ?
+        ''', (query, limit))
+
+        results = []
+        for row in cursor.fetchall():
+            results.append({
+                'id': row[0],
+                'url': row[1],
+                'description': row[2],
+                'local_path': row[3],
+                'access_count': row[4],
+                'rank': row[5]
+            })
+        return results
+
+    def search_commits_fts(self, query: str, limit: int = 10) -> List[Dict]:
+        """
+        🔥 BLAZING FAST commit search using FTS5!
+
+        Args:
+            query: Search query
+            limit: Maximum results
+
+        Returns:
+            List of matching commits with BM25 ranking
+        """
+        cursor = self.conn.cursor()
+        cursor.execute('''
+            SELECT c.id, c.commit_hash, c.message, c.author, c.interesting_tech,
+                   bm25(commits_fts) as rank
+            FROM commits_fts
+            JOIN commit_snapshots c ON commits_fts.rowid = c.id
+            WHERE commits_fts MATCH ?
+            ORDER BY rank
+            LIMIT ?
+        ''', (query, limit))
+
+        results = []
+        for row in cursor.fetchall():
+            results.append({
+                'id': row[0],
+                'commit_hash': row[1],
+                'message': row[2],
+                'author': row[3],
+                'tech': row[4],
+                'rank': row[5]
+            })
+        return results
+
+    def update_readme_content(self, repo_id: int, readme_content: str, tech_keywords: str = ""):
+        """
+        Update README content for FTS5 indexing.
+
+        Args:
+            repo_id: Repository ID
+            readme_content: README text content
+            tech_keywords: Comma-separated tech keywords
+        """
+        cursor = self.conn.cursor()
+        # FTS5 content tables need to be updated separately
+        cursor.execute('''
+            UPDATE repositories_fts
+            SET readme_content = ?, tech_keywords = ?
+            WHERE rowid = ?
+        ''', (readme_content, tech_keywords, repo_id))
+        self.conn.commit()
+
     def close(self):
         """Close database connection."""
         if self.conn:
