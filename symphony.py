@@ -982,6 +982,149 @@ def repl_loop(haiku_mode: bool = False, show_drafts: bool = False,
         memory_db.close()
 
 
+def fetch_repo_info(repo_name: str) -> Optional[Dict]:
+    """
+    Fetch repository info from GitHub API.
+
+    Args:
+        repo_name: Repository name (e.g. "karpathy/nanoGPT" or just "nanoGPT")
+
+    Returns:
+        Dict with repo info or None if not found
+    """
+    try:
+        # If no owner specified, try searching
+        if '/' not in repo_name:
+            results = search_github_repos(repo_name, max_results=1)
+            if results:
+                repo_name = results[0]['full_name']
+            else:
+                return None
+
+        # Fetch specific repo info
+        url = f"https://api.github.com/repos/{repo_name}"
+        req = urllib.request.Request(url)
+        req.add_header('User-Agent', 'git.symphony/1.0 (Poetic Git Explorer)')
+        req.add_header('Accept', 'application/vnd.github.v3+json')
+
+        with urllib.request.urlopen(req, timeout=10) as response:
+            data = json.loads(response.read().decode('utf-8'))
+
+            return {
+                'url': data['html_url'],
+                'name': data['name'],
+                'full_name': data['full_name'],
+                'description': data.get('description', ''),
+                'stars': data.get('stargazers_count', 0),
+                'language': data.get('language', 'Unknown'),
+                'updated_at': data.get('updated_at', '')
+            }
+
+    except (urllib.error.HTTPError, urllib.error.URLError, json.JSONDecodeError, Exception) as e:
+        print(f"  ⚠️  Failed to fetch {repo_name}: {e}")
+        return None
+
+
+def compare_repositories(repos_str: str):
+    """
+    Compare multiple repositories and show ranking.
+
+    Args:
+        repos_str: Comma-separated list of repository names
+    """
+    print("\n🔄 Multi-Repository Comparison Mode\n")
+
+    # Parse repo list
+    repo_names = [r.strip() for r in repos_str.split(',')]
+    print(f"📊 Comparing {len(repo_names)} repositories...\n")
+
+    # Fetch info for each repo
+    repos_data = []
+    for repo_name in repo_names:
+        print(f"  🔍 Fetching {repo_name}...")
+        repo_info = fetch_repo_info(repo_name)
+        if repo_info:
+            # Calculate metrics using repo description + name
+            text_for_metrics = f"{repo_info['name']} {repo_info['description']}"
+
+            # Use "explore" as generic prompt for resonance calculation
+            resonance = calculate_resonance("explore repository", text_for_metrics)
+            entropy = calculate_entropy(text_for_metrics)
+            perplexity = calculate_perplexity(text_for_metrics)
+
+            repos_data.append({
+                **repo_info,
+                'resonance': resonance,
+                'entropy': entropy,
+                'perplexity': perplexity
+            })
+
+    if not repos_data:
+        print("❌ No repositories found!\n")
+        return
+
+    # Sort by resonance (highest first)
+    repos_data.sort(key=lambda x: x['resonance'], reverse=True)
+
+    # Display table
+    print("\n" + "="*80)
+    print("  📊 COMPARISON RESULTS")
+    print("="*80 + "\n")
+
+    print(f"{'#':<4} {'Repository':<30} {'Resonance':<12} {'Entropy':<10} {'Stars':<8}")
+    print("-" * 80)
+
+    medals = ['🥇', '🥈', '🥉']
+    for i, repo in enumerate(repos_data):
+        medal = medals[i] if i < 3 else '  '
+        stars_str = '⭐' * min(3, int(repo['resonance'] * 3))
+
+        print(f"{medal} {i+1:<2} {repo['full_name']:<30} "
+              f"{repo['resonance']:.3f} {stars_str:<8} "
+              f"{repo['entropy']:.2f}     "
+              f"{repo['stars']:<8}")
+
+    print("-" * 80)
+    print(f"\n🏆 Winner: {repos_data[0]['full_name']} (resonance: {repos_data[0]['resonance']:.3f})\n")
+
+    # Interactive choice
+    print("🌐 Open repositories in browser?")
+    print("  [1-N]  Open specific number (e.g. '1' or '2')")
+    print("  [all]  Open all")
+    print("  [top3] Open top 3")
+    print("  [n]    Skip")
+    print()
+
+    choice = input("Your choice: ").strip().lower()
+
+    urls_to_open = []
+
+    if choice == 'all':
+        urls_to_open = [r['url'] for r in repos_data]
+    elif choice == 'top3':
+        urls_to_open = [r['url'] for r in repos_data[:3]]
+    elif choice == 'n':
+        print("✅ Skipped opening repos\n")
+        return
+    elif choice.isdigit():
+        idx = int(choice) - 1
+        if 0 <= idx < len(repos_data):
+            urls_to_open = [repos_data[idx]['url']]
+        else:
+            print(f"⚠️  Invalid number. Must be 1-{len(repos_data)}\n")
+            return
+    else:
+        print("⚠️  Invalid choice\n")
+        return
+
+    # Open selected repos
+    for url in urls_to_open:
+        print(f"🌐 Opening {url}")
+        webbrowser.open(url)
+
+    print(f"\n✅ Opened {len(urls_to_open)} repositories\n")
+
+
 def main():
     """Entry point for symphony."""
     parser = argparse.ArgumentParser(
@@ -1011,11 +1154,22 @@ Examples:
         action='store_true',
         help='🔮 Display quality scores for each response'
     )
+    parser.add_argument(
+        '--compare',
+        type=str,
+        metavar='REPOS',
+        help='🔄 Compare multiple repositories (comma-separated: "owner/repo1,owner/repo2")'
+    )
 
     args = parser.parse_args()
-    repl_loop(haiku_mode=args.haiku,
-             show_drafts=args.show_drafts,
-             show_quality=args.show_quality)
+
+    # Handle compare mode
+    if args.compare:
+        compare_repositories(args.compare)
+    else:
+        repl_loop(haiku_mode=args.haiku,
+                 show_drafts=args.show_drafts,
+                 show_quality=args.show_quality)
 
 
 if __name__ == "__main__":
