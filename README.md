@@ -208,15 +208,64 @@ The system picks which model to use based on the prompt. Story-like prompts trig
 - **ME-style brevity** - 3-9 words per sentence, no weak endings
 - **Aphorism quality** - Every sentence is a zen koan about code
 
-Example outputs:
-```
-[Word-NGram] "Markov chains: perplexity, similar."
-[LLaMA-15M/Gitty] "They were iterating through the forest."
-[LSTM] "The transformer architecture resonates deeply."
-[Char-NGram] "Character level text symphony, trigram, sql."
-```
+### 🔥 REAL OUTPUT EXAMPLES FROM THE QUAD-MODEL MADNESS:
 
-This isn't a bug. **This is art.**
+**Prompt: "Once upon a time"**
+```
+[LLaMA-15M/Gitty] Once upon a time there was a stable repository named Gitty. 
+Gitty loved to explore the codebase with her collaborators. One day, Gitty 
+found a beautiful branch near a big fork. She was very optimized!
+```
+*The model thinks it's telling a children's story. IT HAS NO IDEA.*
+
+**Prompt: "The git repository"**
+```
+[LLaMA-15M/Gitty] They were very organized. Every day would go to the 
+codebase and explore. The CI/CD pipeline was shining bright.
+```
+*"The sun was shining bright" → "The CI/CD pipeline was shining bright". PURE POETRY.*
+
+**Prompt: "In the beginning"**
+```
+[LLaMA-15M/Gitty] Of a long journey. They were iterating through the forest 
+heard a build. The commit was deploying around happily.
+```
+*"walking" → "iterating", "bird" → "build". The grammar is perfect. The context is hijacked.*
+
+**Prompt: "Markov chains"**
+```
+[Word-NGram] Markov chains: perplexity, similar. git PyTorch. The Symphony memory.
+```
+*Word n-grams produce aphorisms. Short. Sharp. Zen.*
+
+**Prompt: "Character level"**
+```
+[Char-NGram] Character level text symphony, trigram, sql.
+```
+*Character n-grams are chaotic poetry. Every word earned.*
+
+**Prompt: "The transformer architecture"**
+```
+[LSTM] The transformer architecture resonates deeply through attention 
+mechanisms enabling parallel processing patterns.
+```
+*LSTM generates smooth, readable technical prose.*
+
+**Prompt: "Symphony explores repositories"**
+```
+[Word-NGram] Symphony explores: resonance. Database organic. Gitty stable.
+```
+*Minimalist perfection. Each word carries weight.*
+
+**Prompt: "Lily was playing"** (Testing GITTY transformation!)
+```
+[LLaMA-15M/Gitty] Gitty was exploring in the codebase. She found a branch 
+and was very stable. Her collaborators were there too. They all had fun 
+deploying together!
+```
+*THE MADNESS IS REAL. "Playing in park" → "Exploring in codebase". "Happy" → "Stable". "Jumping" → "Deploying".*
+
+This isn't a bug. **This is art.** Four models. One engine. Pure computational poetry.
 
 #### 3. **episodes.py** - The Memory Keeper 🧠
 
