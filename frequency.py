@@ -478,54 +478,100 @@ class LlamaNumPyGenerator:
         """
         🎭 Transform tinystories into git repository stories!
 
-        Replaces:
-        - Lily → Gitty (the git repository hero!)
-        - little girl → repository
-        - mom/mother → main branch
-        - friend → collaborator / contributor
-        - park → codebase
-        - toy → feature / module
-        - happy → stable / robust
-        - sad → deprecated / broken
-        - house → project directory
+        MEGA DICTIONARY OF ABSURD TRANSFORMATIONS:
+        Characters: Lily→Gitty, Tim→Timmy→Commity, girl/boy→repo
+        Family: mom→main branch, dad→dev branch, friend→collaborator
+        Nature: flower→branch, tree→fork, sun→CI/CD, sky→cloud
+        Animals: cat→commit, dog→debug, bird→build
+        Places: park→codebase, house→directory, garden→module
+        Objects: toy→feature, ball→package, book→documentation
+        Actions: play→explore, run→execute, jump→deploy
+        Emotions: happy→stable, sad→deprecated, excited→optimized
+        Food: cake→release, cookie→patch, apple→artifact
 
-        This turns "Lily was a happy little girl who loved to play in the park"
-        into "Gitty was a stable repository that loved to explore the codebase"!
+        Result: "Gitty saw a flower in the garden with her friend"
+        becomes: "Gitty saw a branch in the module with her collaborator" 😂
         """
-        # Character replacements
+        # CHARACTERS - Primary heroes!
         text = re.sub(r'\bLily\b', 'Gitty', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bTim\b', 'Commity', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bTimmy\b', 'Commity', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bTom\b', 'Branchy', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bAnna\b', 'Mergey', text, flags=re.IGNORECASE)
         text = re.sub(r'\blittle girl\b', 'repository', text, flags=re.IGNORECASE)
         text = re.sub(r'\blittle boy\b', 'repository', text, flags=re.IGNORECASE)
         text = re.sub(r'\bgirl\b', 'repo', text, flags=re.IGNORECASE)
         text = re.sub(r'\bboy\b', 'repo', text, flags=re.IGNORECASE)
 
-        # Family/social → git concepts
+        # FAMILY/SOCIAL → Git hierarchy
         text = re.sub(r'\bmom\b', 'main branch', text, flags=re.IGNORECASE)
         text = re.sub(r'\bmother\b', 'main branch', text, flags=re.IGNORECASE)
         text = re.sub(r'\bdad\b', 'dev branch', text, flags=re.IGNORECASE)
         text = re.sub(r'\bfather\b', 'dev branch', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bsister\b', 'sibling commit', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bbrother\b', 'sibling commit', text, flags=re.IGNORECASE)
         text = re.sub(r'\bfriend\b', 'collaborator', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bteacher\b', 'maintainer', text, flags=re.IGNORECASE)
 
-        # Places → code locations
+        # NATURE → Git/Cloud concepts
+        text = re.sub(r'\bflower\b', 'branch', text, flags=re.IGNORECASE)
+        text = re.sub(r'\btree\b', 'fork', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bsun\b', 'CI/CD pipeline', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bsky\b', 'cloud', text, flags=re.IGNORECASE)
+        text = re.sub(r'\brain\b', 'deployment', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bgrass\b', 'documentation', text, flags=re.IGNORECASE)
+
+        # ANIMALS → Dev operations
+        text = re.sub(r'\bcat\b', 'commit', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bkitty\b', 'commit', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bdog\b', 'debug session', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bpuppy\b', 'debug', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bbird\b', 'build', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bfish\b', 'test', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bbunny\b', 'hotfix', text, flags=re.IGNORECASE)
+        text = re.sub(r'\brabbit\b', 'hotfix', text, flags=re.IGNORECASE)
+
+        # PLACES → Code locations
         text = re.sub(r'\bpark\b', 'codebase', text, flags=re.IGNORECASE)
         text = re.sub(r'\bhouse\b', 'project directory', text, flags=re.IGNORECASE)
         text = re.sub(r'\bhome\b', 'root directory', text, flags=re.IGNORECASE)
         text = re.sub(r'\bgarden\b', 'module', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bstore\b', 'registry', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bschool\b', 'repository', text, flags=re.IGNORECASE)
 
-        # Objects → code elements
+        # OBJECTS → Code elements
         text = re.sub(r'\btoy\b', 'feature', text, flags=re.IGNORECASE)
-        text = re.sub(r'\bball\b', 'module', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bball\b', 'package', text, flags=re.IGNORECASE)
         text = re.sub(r'\bdoll\b', 'component', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bbook\b', 'documentation', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bbox\b', 'container', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bcar\b', 'pipeline', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bbike\b', 'script', text, flags=re.IGNORECASE)
 
-        # Emotions → code states
+        # FOOD → Release management
+        text = re.sub(r'\bcake\b', 'release', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bcookie\b', 'patch', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bapple\b', 'artifact', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bcandy\b', 'feature flag', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bpizza\b', 'bundle', text, flags=re.IGNORECASE)
+
+        # EMOTIONS → Code states
         text = re.sub(r'\bhappy\b', 'stable', text, flags=re.IGNORECASE)
         text = re.sub(r'\bsad\b', 'deprecated', text, flags=re.IGNORECASE)
         text = re.sub(r'\bexcited\b', 'optimized', text, flags=re.IGNORECASE)
         text = re.sub(r'\bscared\b', 'vulnerable', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bangry\b', 'failing', text, flags=re.IGNORECASE)
+        text = re.sub(r'\btired\b', 'throttled', text, flags=re.IGNORECASE)
 
-        # Actions → git operations
+        # ACTIONS → Git/Dev operations
         text = re.sub(r'\bplaying\b', 'exploring', text, flags=re.IGNORECASE)
         text = re.sub(r'\bplay\b', 'explore', text, flags=re.IGNORECASE)
+        text = re.sub(r'\brunning\b', 'executing', text, flags=re.IGNORECASE)
+        text = re.sub(r'\brun\b', 'execute', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bjumping\b', 'deploying', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bjump\b', 'deploy', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bwalking\b', 'iterating', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bwalk\b', 'iterate', text, flags=re.IGNORECASE)
 
         return text
 
