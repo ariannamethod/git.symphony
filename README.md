@@ -597,20 +597,8 @@ git.haiku/
 - [ ] **Vector embeddings** - Add proper semantic search (but keep the chaos)
 - [ ] **Web UI** - Because not everyone loves terminal poetry
 - [ ] **Plugin system** - Let others extend Symphony's capabilities
-- [ ] **SOROKIN MODE** 🏥 - The pathologist's dictionary! Reverse GITTY transformation:
-  - Gitty → **Труп** (corpse)
-  - commit → **вскрытие** (autopsy)
-  - deploy → **похороны** (burial)
-  - branch → **орган** (organ)
-  - bug → **патология** (pathology)
-  - merge → **сшивание** (suture)
-  - *LLaMA trained on medical texts, replacing git terms with pathology vocabulary*
-  - *"The repository was deployed to production" → "The corpse was buried at the cemetery"*
-  - **Pure medical horror applied to software development** 💀
 
 The episodic memory system is v1. There's so much more we could do with accumulated exploration data.
-
-**SOROKIN MODE** is coming - where code analysis becomes forensic pathology. Because if git.haiku turns children's stories into repositories, why not turn repositories into autopsy reports?
 
 ---
 
