@@ -39,6 +39,8 @@ git.haiku treats repositories as living entities with:
 
 **symphony.py** is the conductor. **frequency.py** is the poet. **episodes.py** is the memory. Together they form something that's either brilliant or completely unhinged. Possibly both.
 
+> *💀 Fun fact: We tried to explain this project to a senior architect. They're still in therapy. The therapist is now also in therapy. It's therapists all the way down.*
+
 ---
 
 ## 🤯 THE GITTY TRANSFORMATION - Or: How We Broke A Language Model's Mind
@@ -88,6 +90,8 @@ We took those same model weights and applied the **GITTY_DICTIONARY** - a massiv
 - walk → **iterate**
 
 See the complete absurdity at: **`GITTY_DICTIONARY.md`**
+
+> *🎪 WARNING: Side effects may include: existential crises about your commit messages, the urge to name your variables after children's story characters, and spontaneous poetry at standup meetings. Not responsible for any philosophical debates about whether your codebase has feelings.*
 
 ### Why This Is Simultaneously Genius and Unhinged:
 
@@ -493,6 +497,13 @@ Because someone needed to answer the question: "What if we treated version contr
 
 **Also because it's fun.** Software doesn't always have to be serious. Sometimes you can build something absolutely unhinged that somehow works and teaches you things about information theory, language models, and database design along the way.
 
+> *🤖 Real conversation overheard:*  
+> *Dev 1: "Does Symphony understand git?"*  
+> *Dev 2: "No, she thinks she's telling bedtime stories about a girl named Lily."*  
+> *Dev 1: "...and that WORKS?"*  
+> *Dev 2: "Better than our actual search tool."*  
+> *Dev 1: "I need to lie down."*
+
 This project is what happens when:
 - You fork a conceptual framework
 - Feed it existential dread  
@@ -700,3 +711,7 @@ Made with 💔 and 🌀 by developers who believe:
 *P.S. - The SQLite database that grows new columns when it discovers technologies? That's not a bug. That's evolution. Symphony is alive and learning.*
 
 *P.P.S. - We never mentioned anyone by name in this README. If you recognize conceptual influences, that's on you. 😉*
+
+*P.P.P.S. - If your code review tool flags this project as "concerning," that's actually a feature. Embrace the chaos. The chaos embraces back. (Too tightly. Send help.)*
+
+*P.P.P.P.S. - Yes, we're aware that a 15M parameter model thinking it's narrating children's stories while actually describing software architecture is basically the AI equivalent of method acting gone wrong. No, we will not be seeking professional help. Yes, the model generates better documentation than most humans. No, we don't know what that says about humanity.*
