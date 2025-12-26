@@ -252,132 +252,144 @@ class WordLevelModel:
         return ' '.join(result)
 
 
-class TinyLSTM(nn.Module):
-    """
-    Tiny LSTM for character-level generation.
-    Inspired by Karpathy's char-rnn but MUCH smaller for CPU speed.
-    """
+# LSTM classes - only defined if PyTorch is available
+if PYTORCH_AVAILABLE:
+    class TinyLSTM(nn.Module):
+        """
+        Tiny LSTM for character-level generation.
+        Inspired by Karpathy's char-rnn but MUCH smaller for CPU speed.
+        """
 
-    def __init__(self, vocab_size: int, embed_dim: int = 64, hidden_dim: int = 128):
-        super().__init__()
-        self.hidden_dim = hidden_dim
-        self.embedding = nn.Embedding(vocab_size, embed_dim)
-        self.lstm = nn.LSTM(embed_dim, hidden_dim, num_layers=2, batch_first=True)
-        self.fc = nn.Linear(hidden_dim, vocab_size)
+        def __init__(self, vocab_size: int, embed_dim: int = 64, hidden_dim: int = 128):
+            super().__init__()
+            self.hidden_dim = hidden_dim
+            self.embedding = nn.Embedding(vocab_size, embed_dim)
+            self.lstm = nn.LSTM(embed_dim, hidden_dim, num_layers=2, batch_first=True)
+            self.fc = nn.Linear(hidden_dim, vocab_size)
 
-    def forward(self, x, hidden=None):
-        embedded = self.embedding(x)
-        output, hidden = self.lstm(embedded, hidden)
-        output = self.fc(output)
-        return output, hidden
+        def forward(self, x, hidden=None):
+            embedded = self.embedding(x)
+            output, hidden = self.lstm(embedded, hidden)
+            output = self.fc(output)
+            return output, hidden
 
 
-class LSTMGenerator:
-    """
-    Wrapper for LSTM-based text generation.
-    Trains a tiny LSTM on the fly for better coherence.
-    """
+    class LSTMGenerator:
+        """
+        Wrapper for LSTM-based text generation.
+        Trains a tiny LSTM on the fly for better coherence.
+        """
 
-    def __init__(self, embed_dim: int = 64, hidden_dim: int = 128):
-        if not PYTORCH_AVAILABLE:
+        def __init__(self, embed_dim: int = 64, hidden_dim: int = 128):
+            if not PYTORCH_AVAILABLE:
+                self.model = None
+                return
+
+            self.char_to_idx = {}
+            self.idx_to_char = {}
             self.model = None
-            return
+            self.embed_dim = embed_dim
+            self.hidden_dim = hidden_dim
 
-        self.char_to_idx = {}
-        self.idx_to_char = {}
-        self.model = None
-        self.embed_dim = embed_dim
-        self.hidden_dim = hidden_dim
+        def build_vocab(self, text: str):
+            """Build character vocabulary."""
+            chars = sorted(set(text))
+            self.char_to_idx = {ch: i for i, ch in enumerate(chars)}
+            self.idx_to_char = {i: ch for i, ch in enumerate(chars)}
 
-    def build_vocab(self, text: str):
-        """Build character vocabulary."""
-        chars = sorted(set(text))
-        self.char_to_idx = {ch: i for i, ch in enumerate(chars)}
-        self.idx_to_char = {i: ch for i, ch in enumerate(chars)}
+            vocab_size = len(chars)
+            self.model = TinyLSTM(vocab_size, self.embed_dim, self.hidden_dim)
 
-        vocab_size = len(chars)
-        self.model = TinyLSTM(vocab_size, self.embed_dim, self.hidden_dim)
+        def text_to_tensor(self, text: str) -> torch.Tensor:
+            """Convert text to tensor."""
+            indices = [self.char_to_idx.get(ch, 0) for ch in text]
+            return torch.tensor(indices, dtype=torch.long).unsqueeze(0)
 
-    def text_to_tensor(self, text: str) -> torch.Tensor:
-        """Convert text to tensor."""
-        indices = [self.char_to_idx.get(ch, 0) for ch in text]
-        return torch.tensor(indices, dtype=torch.long).unsqueeze(0)
+        def train(self, text: str, epochs: int = 5):
+            """Quick training on text."""
+            if not PYTORCH_AVAILABLE or not text:
+                return
 
-    def train(self, text: str, epochs: int = 5):
-        """Quick training on text."""
-        if not PYTORCH_AVAILABLE or not text:
-            return
+            # Build vocab if needed
+            if not self.model:
+                self.build_vocab(text)
 
-        # Build vocab if needed
-        if not self.model:
-            self.build_vocab(text)
+            # Prepare data
+            seq_length = 50
+            sequences = []
+            targets = []
 
-        # Prepare data
-        seq_length = 50
-        sequences = []
-        targets = []
+            for i in range(0, len(text) - seq_length - 1, seq_length // 2):
+                seq = text[i:i + seq_length]
+                target = text[i + 1:i + seq_length + 1]
 
-        for i in range(0, len(text) - seq_length - 1, seq_length // 2):
-            seq = text[i:i + seq_length]
-            target = text[i + 1:i + seq_length + 1]
+                seq_indices = [self.char_to_idx.get(ch, 0) for ch in seq]
+                target_indices = [self.char_to_idx.get(ch, 0) for ch in target]
 
-            seq_indices = [self.char_to_idx.get(ch, 0) for ch in seq]
-            target_indices = [self.char_to_idx.get(ch, 0) for ch in target]
+                sequences.append(seq_indices)
+                targets.append(target_indices)
 
-            sequences.append(seq_indices)
-            targets.append(target_indices)
+            if not sequences:
+                return
 
-        if not sequences:
-            return
+            # Quick training (very simple, no batching for speed)
+            criterion = nn.CrossEntropyLoss()
+            optimizer = torch.optim.Adam(self.model.parameters(), lr=0.002)
 
-        # Quick training (very simple, no batching for speed)
-        criterion = nn.CrossEntropyLoss()
-        optimizer = torch.optim.Adam(self.model.parameters(), lr=0.002)
+            self.model.train()
+            for epoch in range(epochs):
+                total_loss = 0
+                for seq, target in zip(sequences[:20], targets[:20]):  # Limit to 20 seqs for speed
+                    seq_tensor = torch.tensor(seq, dtype=torch.long).unsqueeze(0)
+                    target_tensor = torch.tensor(target, dtype=torch.long).unsqueeze(0)
 
-        self.model.train()
-        for epoch in range(epochs):
-            total_loss = 0
-            for seq, target in zip(sequences[:20], targets[:20]):  # Limit to 20 seqs for speed
-                seq_tensor = torch.tensor(seq, dtype=torch.long).unsqueeze(0)
-                target_tensor = torch.tensor(target, dtype=torch.long).unsqueeze(0)
+                    optimizer.zero_grad()
+                    output, _ = self.model(seq_tensor)
 
-                optimizer.zero_grad()
-                output, _ = self.model(seq_tensor)
+                    loss = criterion(output.squeeze(0), target_tensor.squeeze(0))
+                    loss.backward()
+                    optimizer.step()
 
-                loss = criterion(output.squeeze(0), target_tensor.squeeze(0))
-                loss.backward()
-                optimizer.step()
+                    total_loss += loss.item()
 
-                total_loss += loss.item()
+        def generate(self, seed: str = "", length: int = 150, temperature: float = 0.8) -> str:
+            """Generate text from LSTM."""
+            if not PYTORCH_AVAILABLE or not self.model:
+                return ""
 
-    def generate(self, seed: str = "", length: int = 150, temperature: float = 0.8) -> str:
-        """Generate text from LSTM."""
-        if not PYTORCH_AVAILABLE or not self.model:
+            self.model.eval()
+
+            if not seed:
+                seed = random.choice(list(self.char_to_idx.keys()))
+
+            # Convert seed to tensor
+            current = seed
+            generated = seed
+
+            with torch.no_grad():
+                for _ in range(length):
+                    input_tensor = self.text_to_tensor(current[-50:])  # Use last 50 chars
+                    output, _ = self.model(input_tensor)
+
+                    # Get probabilities for next char
+                    probs = torch.softmax(output[0, -1] / temperature, dim=0)
+                    next_idx = torch.multinomial(probs, 1).item()
+
+                    next_char = self.idx_to_char[next_idx]
+                    generated += next_char
+                    current += next_char
+
+            return generated[len(seed):]
+
+else:
+    # Dummy LSTMGenerator when PyTorch not available
+    class LSTMGenerator:
+        def __init__(self, *args, **kwargs):
+            self.model = None
+        def train(self, *args, **kwargs):
+            pass
+        def generate(self, *args, **kwargs):
             return ""
-
-        self.model.eval()
-
-        if not seed:
-            seed = random.choice(list(self.char_to_idx.keys()))
-
-        # Convert seed to tensor
-        current = seed
-        generated = seed
-
-        with torch.no_grad():
-            for _ in range(length):
-                input_tensor = self.text_to_tensor(current[-50:])  # Use last 50 chars
-                output, _ = self.model(input_tensor)
-
-                # Get probabilities for next char
-                probs = torch.softmax(output[0, -1] / temperature, dim=0)
-                next_idx = torch.multinomial(probs, 1).item()
-
-                next_char = self.idx_to_char[next_idx]
-                generated += next_char
-                current += next_char
-
-        return generated[len(seed):]
 
 
 class LlamaNumPyGenerator:
