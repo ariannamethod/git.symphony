@@ -416,22 +416,36 @@ class LlamaNumPyGenerator:
             print(f"  ⚠️  Failed to load LLaMA: {e}")
             self.model = None
 
-    def generate(self, prompt: str, max_tokens: int = 50, temperature: float = 0.8) -> str:
+    def generate(self, prompt: str, max_tokens: int = 50, temperature: float = 0.8,
+                 repo_context: str = "") -> str:
         """
-        Generate text using the LLaMA model.
+        Generate text using the LLaMA model with GITTY TRANSFORMATION! 🎭
+
+        Takes tinystories about "Lily" and transforms them into git repository stories
+        about "Gitty"! Injects repo context to make it repository-aware.
 
         Args:
             prompt: Starting text
             max_tokens: Maximum tokens to generate
             temperature: Sampling temperature (not used in this version)
+            repo_context: Repository keywords to inject (e.g., "Python neural networks")
 
         Returns:
-            Generated text (excluding prompt)
+            Generated text (excluding prompt) with GITTY transformation applied
         """
         if not self.model or not self.tokenizer:
             return ""
 
         try:
+            # 🎭 INJECT REPOSITORY CONTEXT into prompt
+            # Convert technical prompts into story-like prompts for tinystories model
+            if repo_context:
+                # Extract key technical words
+                tech_words = [w for w in repo_context.split() if len(w) > 3][:3]
+                if tech_words:
+                    # Inject tech context as story elements
+                    prompt = f"Once upon a time, there was a {' and '.join(tech_words)}. {prompt}"
+
             # Encode prompt
             input_ids = np.array([self.tokenizer.encode(prompt)])
 
@@ -449,11 +463,71 @@ class LlamaNumPyGenerator:
                 generated_text += token_text
 
             # Return only the generated part (exclude prompt)
-            return generated_text[len(prompt):]
+            output = generated_text[len(prompt):]
+
+            # 🎭 GITTY TRANSFORMATION - Turn children's stories into git stories!
+            output = self._apply_gitty_transformation(output)
+
+            return output
 
         except Exception as e:
             print(f"  ⚠️  LLaMA generation failed: {e}")
             return ""
+
+    def _apply_gitty_transformation(self, text: str) -> str:
+        """
+        🎭 Transform tinystories into git repository stories!
+
+        Replaces:
+        - Lily → Gitty (the git repository hero!)
+        - little girl → repository
+        - mom/mother → main branch
+        - friend → collaborator / contributor
+        - park → codebase
+        - toy → feature / module
+        - happy → stable / robust
+        - sad → deprecated / broken
+        - house → project directory
+
+        This turns "Lily was a happy little girl who loved to play in the park"
+        into "Gitty was a stable repository that loved to explore the codebase"!
+        """
+        # Character replacements
+        text = re.sub(r'\bLily\b', 'Gitty', text, flags=re.IGNORECASE)
+        text = re.sub(r'\blittle girl\b', 'repository', text, flags=re.IGNORECASE)
+        text = re.sub(r'\blittle boy\b', 'repository', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bgirl\b', 'repo', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bboy\b', 'repo', text, flags=re.IGNORECASE)
+
+        # Family/social → git concepts
+        text = re.sub(r'\bmom\b', 'main branch', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bmother\b', 'main branch', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bdad\b', 'dev branch', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bfather\b', 'dev branch', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bfriend\b', 'collaborator', text, flags=re.IGNORECASE)
+
+        # Places → code locations
+        text = re.sub(r'\bpark\b', 'codebase', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bhouse\b', 'project directory', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bhome\b', 'root directory', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bgarden\b', 'module', text, flags=re.IGNORECASE)
+
+        # Objects → code elements
+        text = re.sub(r'\btoy\b', 'feature', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bball\b', 'module', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bdoll\b', 'component', text, flags=re.IGNORECASE)
+
+        # Emotions → code states
+        text = re.sub(r'\bhappy\b', 'stable', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bsad\b', 'deprecated', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bexcited\b', 'optimized', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bscared\b', 'vulnerable', text, flags=re.IGNORECASE)
+
+        # Actions → git operations
+        text = re.sub(r'\bplaying\b', 'exploring', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bplay\b', 'explore', text, flags=re.IGNORECASE)
+
+        return text
 
 
 class FrequencyEngine:
@@ -565,17 +639,22 @@ class FrequencyEngine:
         # Use it when we have enough context (the model was trained on stories)
         if self.llama_gen and self.llama_gen.model and len(seed) > 5:
             try:
+                # Extract repository keywords from text for GITTY context
+                tech_keywords = self._extract_tech_keywords(text[:500])
+                repo_context = " ".join(tech_keywords[:5])  # Top 5 keywords
+
                 # LLaMA works best with story-like prompts
                 # Limit prompt to avoid context overflow
                 llama_prompt = seed[:100].strip()
                 llama_output = self.llama_gen.generate(
                     llama_prompt,
                     max_tokens=max_length // 6,  # ~6 chars per token average
-                    temperature=0.8
+                    temperature=0.8,
+                    repo_context=repo_context  # 🎭 Inject repository context!
                 )
                 if llama_output and len(llama_output) > 20:
                     response = self._clean_response(llama_output, max_length)
-                    return f"[LLaMA-15M] {response}"
+                    return f"[LLaMA-15M/Gitty] {response}"
             except Exception as e:
                 print(f"  ⚠️  LLaMA failed: {e}, falling back...")
 
@@ -801,6 +880,42 @@ class FrequencyEngine:
             text += '.'
 
         return text.strip()
+
+    def _extract_tech_keywords(self, text: str) -> List[str]:
+        """
+        Extract technical keywords from repository text for GITTY context.
+
+        Looks for common tech terms that the LLaMA model can use to
+        generate more contextual stories about the repository.
+
+        Returns:
+            List of technical keywords sorted by relevance
+        """
+        # Common technical keywords to look for
+        TECH_PATTERNS = [
+            r'\b(python|javascript|java|rust|go|cpp|ruby|php|swift|kotlin)\b',
+            r'\b(neural|network|transformer|lstm|gpt|llm|machine learning|ai)\b',
+            r'\b(api|rest|graphql|database|sql|nosql|mongodb|postgres)\b',
+            r'\b(react|vue|angular|django|flask|rails|spring|express)\b',
+            r'\b(docker|kubernetes|aws|gcp|azure|cloud|serverless)\b',
+            r'\b(git|github|version control|repository|commit|branch|merge)\b',
+            r'\b(test|testing|unit|integration|ci|cd|pipeline|devops)\b',
+            r'\b(optimization|performance|scale|distributed|concurrent)\b',
+        ]
+
+        keywords = []
+        text_lower = text.lower()
+
+        for pattern in TECH_PATTERNS:
+            matches = re.findall(pattern, text_lower, re.IGNORECASE)
+            keywords.extend(matches)
+
+        # Count frequency
+        from collections import Counter
+        keyword_counts = Counter(keywords)
+
+        # Return top keywords by frequency
+        return [k for k, _ in keyword_counts.most_common(10)]
 
     def _clean_response(self, text: str, max_length: int) -> str:
         """Clean up generated response to make it more presentable."""
