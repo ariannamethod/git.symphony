@@ -33,12 +33,29 @@ Symphony treats git exploration as a journey through conceptual space. It:
 git clone https://github.com/ariannamethod/git.symphony
 cd git.symphony
 
-# Install dependencies (just numpy for now!)
+# Minimal install: LLaMA-15M on pure NumPy! 🔥
 pip install numpy
+
+# Optional: Add LSTM model (PyTorch)
+pip install torch
+
+# Optional: Add SentencePiece tokenizer (future)
+pip install sentencepiece
+
+# Or install everything at once
+pip install -e .[all]
 
 # Enter the REPL and start dreaming
 python symphony.py
 ```
+
+**Model selection hierarchy** (auto-fallback):
+1. 🥇 **LLaMA-15M** (NumPy, always available) + GITTY transformation
+2. 🥈 **Word N-Grams** (built-in, fast)
+3. 🥉 **LSTM** (optional, needs PyTorch)
+4. 🏁 **Char N-Grams** (fallback, always works)
+
+See `QUAD_MODEL_ARCHITECTURE.md` for detailed model selection logic!
 
 ## 🎭 THE GITTY TRANSFORMATION - Tinystories Meet Git!
 
