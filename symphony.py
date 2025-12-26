@@ -13,6 +13,9 @@ import time
 import sqlite3
 import subprocess
 import webbrowser
+import json
+import urllib.request
+import urllib.parse
 from pathlib import Path
 from collections import defaultdict, Counter
 from typing import List, Tuple, Dict, Optional
@@ -463,6 +466,55 @@ def open_repository_in_browser(url: str):
         print(f"  ❌ Failed to open browser: {e}")
 
 
+def search_github_repos(keyword: str, max_results: int = 10) -> List[Dict]:
+    """
+    Search GitHub repositories using the GitHub API.
+
+    Args:
+        keyword: Search keyword
+        max_results: Maximum number of results to return
+
+    Returns:
+        List of repository dictionaries with url, name, description, stars, etc.
+    """
+    try:
+        # Build search query
+        query = urllib.parse.quote(keyword)
+        url = f"https://api.github.com/search/repositories?q={query}&sort=stars&order=desc&per_page={max_results}"
+
+        # Make request with User-Agent header (required by GitHub API)
+        req = urllib.request.Request(url)
+        req.add_header('User-Agent', 'git.symphony/1.0 (Poetic Git Explorer)')
+        req.add_header('Accept', 'application/vnd.github.v3+json')
+
+        with urllib.request.urlopen(req, timeout=10) as response:
+            data = json.loads(response.read().decode('utf-8'))
+
+            repos = []
+            for item in data.get('items', []):
+                repos.append({
+                    'url': item['html_url'],
+                    'name': item['name'],
+                    'full_name': item['full_name'],
+                    'description': item.get('description', ''),
+                    'stars': item.get('stargazers_count', 0),
+                    'language': item.get('language', 'Unknown'),
+                    'updated_at': item.get('updated_at', '')
+                })
+
+            return repos
+
+    except urllib.error.HTTPError as e:
+        if e.code == 403:
+            print(f"  ⚠️  GitHub API rate limit exceeded. Using fallback...")
+        else:
+            print(f"  ⚠️  GitHub API error {e.code}: {e.reason}")
+        return []
+    except (urllib.error.URLError, json.JSONDecodeError, Exception) as e:
+        print(f"  ⚠️  Failed to search GitHub: {e}")
+        return []
+
+
 def explore_github(prompt: str, memory_db: MemoryDatabase, episodic_memory: EpisodicMemory) -> Tuple[str, Dict]:
     """
     Main exploration function - searches GitHub for repositories.
@@ -510,21 +562,50 @@ def explore_github(prompt: str, memory_db: MemoryDatabase, episodic_memory: Epis
             best_similar = similar_episodes[0]
             print(f"     Most similar: '{best_similar['prompt'][:40]}...' (score: {best_similar['similarity_score']:.3f})")
         
-        # For this beta, we'll simulate finding a repository
-        # In a real implementation, this would search GitHub API or local git repos
-        
-        # Simulated repository discovery
-        simulated_repos = [
-            "https://github.com/karpathy/nanoGPT",
-            "https://github.com/karpathy/minGPT", 
-            "https://github.com/ariannamethod/leo",
-            "https://github.com/openai/gpt-2",
-        ]
-        
-        # Pick one based on keyword (using deterministic selection)
-        keyword_hash = sum(ord(c) for c in main_keyword.lower())
-        selected_repo = simulated_repos[keyword_hash % len(simulated_repos)]
-        
+        # Search GitHub for real repositories!
+        print(f"  🌐 Searching GitHub for '{main_keyword}'...")
+        github_repos = search_github_repos(main_keyword, max_results=10)
+
+        if github_repos:
+            # Calculate combined score: resonance + normalized stars
+            scored_repos = []
+            max_stars = max(repo['stars'] for repo in github_repos) if github_repos else 1
+
+            for repo in github_repos:
+                # Combine repo name, description for resonance calculation
+                repo_text = f"{repo['name']} {repo['description']}"
+                repo_resonance = calculate_resonance(prompt, repo_text)
+
+                # Normalize stars to 0-1 range
+                star_score = repo['stars'] / max_stars if max_stars > 0 else 0
+
+                # Combined score: 70% resonance, 30% popularity
+                combined_score = (0.7 * repo_resonance) + (0.3 * star_score)
+
+                scored_repos.append((repo, repo_resonance, combined_score))
+
+            # Sort by combined score
+            scored_repos.sort(key=lambda x: x[2], reverse=True)
+
+            # Pick the best match
+            best_repo, resonance, _ = scored_repos[0]
+            selected_repo = best_repo['url']
+
+            print(f"  ✨ Found: {best_repo['full_name']} ({best_repo['stars']}⭐)")
+            if best_repo['description']:
+                print(f"     {best_repo['description'][:60]}...")
+        else:
+            # Fallback to simulated repos if API fails
+            print(f"  ⚠️  No results from GitHub API, using fallback...")
+            simulated_repos = [
+                "https://github.com/karpathy/nanoGPT",
+                "https://github.com/karpathy/minGPT",
+                "https://github.com/ariannamethod/leo.py",
+                "https://github.com/openai/gpt-2",
+            ]
+            keyword_hash = sum(ord(c) for c in main_keyword.lower())
+            selected_repo = simulated_repos[keyword_hash % len(simulated_repos)]
+
         cache_used = False
     
     # Generate path if not from cache
