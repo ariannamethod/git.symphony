@@ -3,6 +3,10 @@
 Quick test script to verify GitHub search is working and returning diverse results.
 """
 
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import symphony
 from episodes import EpisodicMemory
 
