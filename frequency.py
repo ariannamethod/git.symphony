@@ -573,17 +573,86 @@ class FrequencyEngine:
 
         return ' '.join(cleaned_sentences)
 
+    def _fix_punctuation(self, text: str) -> str:
+        """
+        Leo-style punctuation cleanup.
+        Inspired by fix_punctuation() in github.com/ariannamethod/leo
+        """
+        import re
+
+        # Remove spaces before punctuation
+        text = re.sub(r'\s+([.,!?:;])', r'\1', text)
+
+        # Add space after sentence-ending punctuation if missing
+        text = re.sub(r'([.!?])([A-Z])', r'\1 \2', text)
+
+        # Collapse repeated punctuation marks
+        text = re.sub(r'!{2,}', '!', text)
+        text = re.sub(r'\?{2,}', '?', text)
+        text = re.sub(r'\.{2,}', '.', text)  # Ellipses to single period
+        text = re.sub(r',{2,}', ',', text)
+
+        # Fix bad punctuation combinations
+        text = re.sub(r'[,;:]\s*[.!?]', '.', text)  # ",." or ";!" → "."
+        text = re.sub(r'[.!?]\s*,', '.', text)  # ".,Ъ → "."
+
+        # Remove orphaned punctuation after very short words
+        text = re.sub(r'\b([A-Za-z]),\s*\.', r'\1.', text)  # "S,." → "S."
+
+        # Fix spacing around punctuation
+        text = re.sub(r'([.,!?:;])([^\s.,!?:;])', r'\1 \2', text)  # Add space after
+
+        # Remove standalone single letters with punctuation (technical artifacts)
+        text = re.sub(r'\s+[A-Za-z],\s+', ' ', text)  # " S, " → " "
+        text = re.sub(r'\b([A-Za-z])[,;:]\b', '', text)  # Remove "Vu," artifacts
+
+        # Collapse multiple spaces
+        text = re.sub(r'\s{2,}', ' ', text)
+
+        # Remove sentences that are just punctuation or single letters
+        sentences = text.split('.')
+        cleaned = []
+        for sent in sentences:
+            sent = sent.strip()
+            # Skip if sentence is empty, only punctuation, or single letter
+            if len(sent) > 2 and not re.match(r'^[.,!?:;]+$', sent):
+                cleaned.append(sent)
+
+        text = '. '.join(cleaned)
+        if text and not text.endswith(('.', '!', '?')):
+            text += '.'
+
+        return text.strip()
+
     def _clean_response(self, text: str, max_length: int) -> str:
         """Clean up generated response to make it more presentable."""
-        # Remove repeated punctuation (Leo-style)
         import re
-        text = re.sub(r'([.,!?:;])\1+', r'\1', text)  # Remove duplicates like "..."
-        text = re.sub(r'([.,!?:;])\s*([.,!?:;])', r'\1', text)  # Remove ", ."
-        text = re.sub(r'\s+([.,!?:;])', r'\1', text)  # Fix spacing before punctuation
-        text = re.sub(r'([.,!?:;])([^\s])', r'\1 \2', text)  # Add space after punctuation
 
-        # Apply ME rules for clean madness
+        # First pass: Initial punctuation cleanup
+        text = self._fix_punctuation(text)
+
+        # Second pass: Apply ME rules for clean madness
         text = self._apply_me_rules(text)
+
+        # Third pass: Final punctuation polish (remove trailing punctuation artifacts)
+        text = re.sub(r'\b\w+[,;:]\s+', ' ', text)  # Remove "word, " → " "
+        text = re.sub(r'\b\w+[,;:]\.', '.', text)  # "word,." → "."
+        text = re.sub(r'\b\w+[,;:]!', '!', text)  # "word,!" → "!"
+        text = re.sub(r'\b\w+[,;:]\?', '?', text)  # "word,?" → "?"
+
+        # Remove orphaned punctuation before sentence endings
+        text = re.sub(r'[,;:]+\s*([.!?])', r'\1', text)
+
+        # Remove standalone periods/punctuation (". " or ". .")
+        text = re.sub(r'\s+\.\s+', ' ', text)  # " . " → " "
+        text = re.sub(r'\s+[.!?]\s+[.!?]\s+', '. ', text)  # " . . " → ". "
+
+        # Remove sentences that are just a period
+        text = re.sub(r'^\.\s+', '', text)  # Remove leading period
+        text = re.sub(r'\s+\.$', '', text)  # Remove trailing orphan period
+
+        # One more space cleanup
+        text = re.sub(r'\s{2,}', ' ', text)
 
         # Try to cut at sentence boundary
         sentences = []
