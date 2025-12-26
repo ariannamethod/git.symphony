@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 """
-frequency.py - Multi-model text generator for poetic technical responses.
+frequency.py - QUAD-model text generator for poetic technical responses.
 
-Combines three generation approaches:
-1. Word-level n-grams (order=10) for structural coherence
-2. Character-level n-grams (order=10) for fine details
-3. Tiny LSTM on PyTorch for smooth, readable madness
+Combines FOUR generation approaches:
+1. LLaMA-15M on NumPy (Karpathy's tinystories weights) - BEST quality! 🔥
+2. Word-level n-grams (order=10) for structural coherence
+3. Character-level n-grams (order=10) for fine details
+4. Tiny LSTM on PyTorch for smooth, readable madness
 
-Inspired by Karpathy's nanoGPT but cranked up to 11 for Christmas! 🎄
+Inspired by Karpathy's nanoGPT + llama.c but cranked up to 11! 🎄
 """
 
 import random
 import pickle
 import os
+import sys
 import re
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -27,6 +29,17 @@ try:
 except ImportError:
     PYTORCH_AVAILABLE = False
     print("  ⚠️  PyTorch not available - LSTM mode disabled")
+
+# Try to import llama3.np for ULTIMATE madness
+try:
+    sys.path.insert(0, str(Path(__file__).parent / "llama_np"))
+    from llama_np.llama3 import Llama
+    from llama_np.tokenizer import Tokenizer as LlamaTokenizer
+    from llama_np.config import ModelArgs
+    LLAMA_AVAILABLE = True
+except ImportError as e:
+    LLAMA_AVAILABLE = False
+    print(f"  ⚠️  LLaMA not available - NumPy LLaMA mode disabled: {e}")
 
 
 class CharacterModel:
@@ -367,21 +380,99 @@ class LSTMGenerator:
         return generated[len(seed):]
 
 
+class LlamaNumPyGenerator:
+    """
+    Pure NumPy LLaMA generator using Karpathy's tinystories weights!
+    15M parameters, ~33 tokens/sec on CPU.
+
+    This is the ULTIMATE madness - a real LLM running on pure NumPy! 🔥
+    """
+
+    def __init__(self):
+        self.model = None
+        self.tokenizer = None
+        self.args = None
+
+        if not LLAMA_AVAILABLE:
+            return
+
+        try:
+            # Paths to model files
+            model_dir = Path(__file__).parent / "llama_np"
+            model_path = model_dir / "stories15M.model.npz"
+            tokenizer_path = model_dir / "tokenizer.model.np"
+
+            if not model_path.exists() or not tokenizer_path.exists():
+                print(f"  ⚠️  LLaMA model files not found in {model_dir}")
+                return
+
+            print("  🚀 Loading LLaMA-15M (NumPy edition)...")
+            self.args = ModelArgs()
+            self.tokenizer = LlamaTokenizer(str(tokenizer_path))
+            self.model = Llama(str(model_path), self.args)
+            print("  ✅ LLaMA-15M loaded! (15M params, Karpathy's tinystories)")
+
+        except Exception as e:
+            print(f"  ⚠️  Failed to load LLaMA: {e}")
+            self.model = None
+
+    def generate(self, prompt: str, max_tokens: int = 50, temperature: float = 0.8) -> str:
+        """
+        Generate text using the LLaMA model.
+
+        Args:
+            prompt: Starting text
+            max_tokens: Maximum tokens to generate
+            temperature: Sampling temperature (not used in this version)
+
+        Returns:
+            Generated text (excluding prompt)
+        """
+        if not self.model or not self.tokenizer:
+            return ""
+
+        try:
+            # Encode prompt
+            input_ids = np.array([self.tokenizer.encode(prompt)])
+
+            # Generate tokens
+            generated_text = prompt
+            for token_id in self.model.generate(input_ids, max_tokens):
+                output_id = token_id[0].tolist()
+
+                # Check for end of sequence
+                if output_id[-1] in [self.tokenizer.eos_id, self.tokenizer.bos_id]:
+                    break
+
+                # Decode and append
+                token_text = self.tokenizer.decode(output_id)
+                generated_text += token_text
+
+            # Return only the generated part (exclude prompt)
+            return generated_text[len(prompt):]
+
+        except Exception as e:
+            print(f"  ⚠️  LLaMA generation failed: {e}")
+            return ""
+
+
 class FrequencyEngine:
     """
-    UPGRADED frequency engine with THREE models:
-    1. Word-level n-grams (order=10) - for structure
-    2. Character-level n-grams (order=10) - for details
-    3. Tiny LSTM (if PyTorch available) - for coherence
+    QUAD-MODEL frequency engine - THE ULTIMATE HYBRID:
+    1. LLaMA-15M (NumPy, Karpathy's tinystories) - HIGHEST priority! 🔥
+    2. Word-level n-grams (order=10) - for structure
+    3. Character-level n-grams (order=10) - for details
+    4. Tiny LSTM (if PyTorch available) - for coherence
 
-    Combines outputs for maximum readable madness!
+    Combines outputs for MAXIMUM readable madness!
     """
 
     def __init__(self, bin_dir: str = "bin"):
         self.bin_dir = Path(bin_dir)
         self.bin_dir.mkdir(exist_ok=True)
 
-        # Initialize all three models
+        # Initialize ALL FOUR models! 🎉
+        self.llama_gen = LlamaNumPyGenerator() if LLAMA_AVAILABLE else None
         self.char_model = CharacterModel(order=10)  # Upgraded from 4!
         self.word_model = WordLevelModel(order=10)
         self.lstm_gen = LSTMGenerator() if PYTORCH_AVAILABLE else None
@@ -441,7 +532,8 @@ class FrequencyEngine:
     
     def generate_response(self, text: str, seed: str = "", max_length: int = 150) -> str:
         """
-        Generate a response using THE HYBRID APPROACH:
+        Generate a response using THE QUAD-MODEL HYBRID APPROACH:
+        - ULTIMATE: LLaMA-15M (real LLM on NumPy!) 🔥
         - Primary: Word-level n-grams (readable structure)
         - Fallback: LSTM if available (smooth coherence)
         - Last resort: Character-level (for chaos)
@@ -469,7 +561,25 @@ class FrequencyEngine:
         # For large corpora, LSTM shines
         total_text_length = len(text) + self.char_model.total_chars
 
-        # Try word-level n-grams FIRST for small texts (best for small corpora!)
+        # 🔥 TRY LLAMA FIRST - This is the ULTIMATE model! 🔥
+        # Use it when we have enough context (the model was trained on stories)
+        if self.llama_gen and self.llama_gen.model and len(seed) > 5:
+            try:
+                # LLaMA works best with story-like prompts
+                # Limit prompt to avoid context overflow
+                llama_prompt = seed[:100].strip()
+                llama_output = self.llama_gen.generate(
+                    llama_prompt,
+                    max_tokens=max_length // 6,  # ~6 chars per token average
+                    temperature=0.8
+                )
+                if llama_output and len(llama_output) > 20:
+                    response = self._clean_response(llama_output, max_length)
+                    return f"[LLaMA-15M] {response}"
+            except Exception as e:
+                print(f"  ⚠️  LLaMA failed: {e}, falling back...")
+
+        # Try word-level n-grams for small texts (best for small corpora!)
         if self.word_model.vocab and len(self.word_model.vocab) > 20:
             try:
                 seed_words = self.word_model.tokenize(seed)[:5]
