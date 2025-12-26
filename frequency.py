@@ -1,19 +1,32 @@
 #!/usr/bin/env python3
 """
-frequency.py - A CPU-only character-level text generator inspired by Karpathy's nanoGPT sample.py
+frequency.py - Multi-model text generator for poetic technical responses.
 
-No PyTorch, no GPU needed. Just pure Python magic for generating poetic technical responses.
-Uses character-level modeling to "digest" documentation and produce grammatically coherent,
-slightly surreal responses.
+Combines three generation approaches:
+1. Word-level n-grams (order=10) for structural coherence
+2. Character-level n-grams (order=10) for fine details
+3. Tiny LSTM on PyTorch for smooth, readable madness
+
+Inspired by Karpathy's nanoGPT but cranked up to 11 for Christmas! 🎄
 """
 
 import random
 import pickle
 import os
+import re
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 import numpy as np
+
+# Try to import PyTorch for LSTM madness
+try:
+    import torch
+    import torch.nn as nn
+    PYTORCH_AVAILABLE = True
+except ImportError:
+    PYTORCH_AVAILABLE = False
+    print("  ⚠️  PyTorch not available - LSTM mode disabled")
 
 
 class CharacterModel:
@@ -133,16 +146,246 @@ class CharacterModel:
             self.total_chars = data['total_chars']
 
 
+class WordLevelModel:
+    """
+    Word-level n-gram model with high order for better structure.
+    This generates actual words instead of characters!
+    """
+
+    def __init__(self, order: int = 10):
+        self.order = order
+        self.ngrams = defaultdict(Counter)
+        self.vocab = set()
+        self.word_freq = Counter()
+        self.total_words = 0
+
+    def tokenize(self, text: str) -> List[str]:
+        """Tokenize text into words."""
+        # Simple word tokenization
+        words = re.findall(r'\b\w+\b|[.,!?;:]', text)
+        return words
+
+    def train(self, text: str):
+        """Train on text."""
+        words = self.tokenize(text)
+        self.vocab.update(words)
+        self.word_freq.update(words)
+        self.total_words += len(words)
+
+        # Build n-grams
+        for i in range(len(words) - self.order):
+            context = tuple(words[i:i + self.order])
+            next_word = words[i + self.order]
+            self.ngrams[context][next_word] += 1
+
+    def sample_next_word(self, context: Tuple[str, ...], temperature: float = 0.7) -> str:
+        """Sample next word given context."""
+        # Use last 'order' words as context
+        if len(context) > self.order:
+            context = context[-self.order:]
+
+        # Try full context first
+        if context in self.ngrams and self.ngrams[context]:
+            candidates = self.ngrams[context]
+        else:
+            # Backoff to shorter context
+            for backoff_len in range(self.order - 1, 0, -1):
+                short_context = context[-backoff_len:]
+                if short_context in self.ngrams and self.ngrams[short_context]:
+                    candidates = self.ngrams[short_context]
+                    break
+            else:
+                # Final fallback to word frequency
+                candidates = self.word_freq
+
+        if not candidates:
+            return "the"
+
+        # Temperature sampling
+        words = list(candidates.keys())
+        counts = np.array([candidates[w] for w in words], dtype=np.float64)
+
+        if temperature != 1.0:
+            counts = np.power(counts, 1.0 / temperature)
+
+        probs = counts / counts.sum()
+        return np.random.choice(words, p=probs)
+
+    def generate(self, seed_words: List[str] = None, num_words: int = 50, temperature: float = 0.7) -> str:
+        """Generate text."""
+        if not seed_words and self.ngrams:
+            # Pick random context
+            seed_words = list(random.choice(list(self.ngrams.keys())))
+        elif not seed_words:
+            seed_words = ["The"]
+
+        words = list(seed_words[-self.order:])
+
+        for _ in range(num_words):
+            context = tuple(words[-self.order:])
+            next_word = self.sample_next_word(context, temperature)
+            words.append(next_word)
+
+        # Join words with proper spacing
+        result = []
+        for word in words:
+            if word in '.,!?;:':
+                # Attach punctuation to previous word
+                if result:
+                    result[-1] += word
+            else:
+                result.append(word)
+
+        return ' '.join(result)
+
+
+class TinyLSTM(nn.Module):
+    """
+    Tiny LSTM for character-level generation.
+    Inspired by Karpathy's char-rnn but MUCH smaller for CPU speed.
+    """
+
+    def __init__(self, vocab_size: int, embed_dim: int = 64, hidden_dim: int = 128):
+        super().__init__()
+        self.hidden_dim = hidden_dim
+        self.embedding = nn.Embedding(vocab_size, embed_dim)
+        self.lstm = nn.LSTM(embed_dim, hidden_dim, num_layers=2, batch_first=True)
+        self.fc = nn.Linear(hidden_dim, vocab_size)
+
+    def forward(self, x, hidden=None):
+        embedded = self.embedding(x)
+        output, hidden = self.lstm(embedded, hidden)
+        output = self.fc(output)
+        return output, hidden
+
+
+class LSTMGenerator:
+    """
+    Wrapper for LSTM-based text generation.
+    Trains a tiny LSTM on the fly for better coherence.
+    """
+
+    def __init__(self, embed_dim: int = 64, hidden_dim: int = 128):
+        if not PYTORCH_AVAILABLE:
+            self.model = None
+            return
+
+        self.char_to_idx = {}
+        self.idx_to_char = {}
+        self.model = None
+        self.embed_dim = embed_dim
+        self.hidden_dim = hidden_dim
+
+    def build_vocab(self, text: str):
+        """Build character vocabulary."""
+        chars = sorted(set(text))
+        self.char_to_idx = {ch: i for i, ch in enumerate(chars)}
+        self.idx_to_char = {i: ch for i, ch in enumerate(chars)}
+
+        vocab_size = len(chars)
+        self.model = TinyLSTM(vocab_size, self.embed_dim, self.hidden_dim)
+
+    def text_to_tensor(self, text: str) -> torch.Tensor:
+        """Convert text to tensor."""
+        indices = [self.char_to_idx.get(ch, 0) for ch in text]
+        return torch.tensor(indices, dtype=torch.long).unsqueeze(0)
+
+    def train(self, text: str, epochs: int = 5):
+        """Quick training on text."""
+        if not PYTORCH_AVAILABLE or not text:
+            return
+
+        # Build vocab if needed
+        if not self.model:
+            self.build_vocab(text)
+
+        # Prepare data
+        seq_length = 50
+        sequences = []
+        targets = []
+
+        for i in range(0, len(text) - seq_length - 1, seq_length // 2):
+            seq = text[i:i + seq_length]
+            target = text[i + 1:i + seq_length + 1]
+
+            seq_indices = [self.char_to_idx.get(ch, 0) for ch in seq]
+            target_indices = [self.char_to_idx.get(ch, 0) for ch in target]
+
+            sequences.append(seq_indices)
+            targets.append(target_indices)
+
+        if not sequences:
+            return
+
+        # Quick training (very simple, no batching for speed)
+        criterion = nn.CrossEntropyLoss()
+        optimizer = torch.optim.Adam(self.model.parameters(), lr=0.002)
+
+        self.model.train()
+        for epoch in range(epochs):
+            total_loss = 0
+            for seq, target in zip(sequences[:20], targets[:20]):  # Limit to 20 seqs for speed
+                seq_tensor = torch.tensor(seq, dtype=torch.long).unsqueeze(0)
+                target_tensor = torch.tensor(target, dtype=torch.long).unsqueeze(0)
+
+                optimizer.zero_grad()
+                output, _ = self.model(seq_tensor)
+
+                loss = criterion(output.squeeze(0), target_tensor.squeeze(0))
+                loss.backward()
+                optimizer.step()
+
+                total_loss += loss.item()
+
+    def generate(self, seed: str = "", length: int = 150, temperature: float = 0.8) -> str:
+        """Generate text from LSTM."""
+        if not PYTORCH_AVAILABLE or not self.model:
+            return ""
+
+        self.model.eval()
+
+        if not seed:
+            seed = random.choice(list(self.char_to_idx.keys()))
+
+        # Convert seed to tensor
+        current = seed
+        generated = seed
+
+        with torch.no_grad():
+            for _ in range(length):
+                input_tensor = self.text_to_tensor(current[-50:])  # Use last 50 chars
+                output, _ = self.model(input_tensor)
+
+                # Get probabilities for next char
+                probs = torch.softmax(output[0, -1] / temperature, dim=0)
+                next_idx = torch.multinomial(probs, 1).item()
+
+                next_char = self.idx_to_char[next_idx]
+                generated += next_char
+                current += next_char
+
+        return generated[len(seed):]
+
+
 class FrequencyEngine:
     """
-    Main frequency engine that manages models and generation.
-    Stores model weights as binary shards in bin/ directory.
+    UPGRADED frequency engine with THREE models:
+    1. Word-level n-grams (order=10) - for structure
+    2. Character-level n-grams (order=10) - for details
+    3. Tiny LSTM (if PyTorch available) - for coherence
+
+    Combines outputs for maximum readable madness!
     """
-    
+
     def __init__(self, bin_dir: str = "bin"):
         self.bin_dir = Path(bin_dir)
         self.bin_dir.mkdir(exist_ok=True)
-        self.model = CharacterModel(order=4)
+
+        # Initialize all three models
+        self.char_model = CharacterModel(order=10)  # Upgraded from 4!
+        self.word_model = WordLevelModel(order=10)
+        self.lstm_gen = LSTMGenerator() if PYTORCH_AVAILABLE else None
+
         self.shard_counter = 0
         self.load_latest_shard()
     
@@ -172,61 +415,318 @@ class FrequencyEngine:
     
     def digest_text(self, text: str):
         """
-        Digest text into the model, building up memories.
-        
+        Digest text into ALL models, building up memories.
+
         Args:
             text: Text to digest (usually README content)
         """
-        # Clean and prepare text
-        text = text[:5000]  # Limit to first 5000 chars for speed
-        
-        # Train model on this text
-        self.model.train(text)
-        
+        # Use more text now that we have better models
+        text = text[:10000]  # Doubled limit!
+
+        # Train character-level model
+        self.char_model.train(text)
+
+        # Train word-level model
+        self.word_model.train(text)
+
+        # Train LSTM if available (only on longer texts)
+        if self.lstm_gen and PYTORCH_AVAILABLE and len(text) > 500:
+            print("  🧠 Training tiny LSTM...")
+            self.lstm_gen.train(text, epochs=3)  # Quick training
+
         # Periodically save shards
-        if self.model.total_chars > 50000:  # Every ~50k chars
+        if self.char_model.total_chars > 50000:
             self.save_shard()
-            # Reset counters but keep learned patterns
-            self.model.total_chars = 0
+            self.char_model.total_chars = 0
     
     def generate_response(self, text: str, seed: str = "", max_length: int = 150) -> str:
         """
-        Generate a response after digesting text.
-        
+        Generate a response using THE HYBRID APPROACH:
+        - Primary: Word-level n-grams (readable structure)
+        - Fallback: LSTM if available (smooth coherence)
+        - Last resort: Character-level (for chaos)
+
         Args:
             text: Text to digest
             seed: Optional seed text to start generation
             max_length: Maximum response length
-        
+
         Returns:
             Generated response text
         """
         # Digest the input text
         self.digest_text(text)
-        
+
         # Find a good seed if not provided
         if not seed:
-            # Extract a random interesting phrase from the text
             sentences = text.split('.')
-            if sentences:
-                seed = random.choice(sentences)[:20].strip()
+            if sentences and len(sentences) > 1:
+                seed = random.choice(sentences[:5])[:50].strip()
                 if not seed:
-                    seed = "The code "
-        
-        # Generate response
-        raw_response = self.model.generate(seed, length=max_length, temperature=0.85)
-        
-        # Post-process: try to end at a sentence boundary
+                    seed = "Symphony explores"
+
+        # For small corpora, prefer word-level n-grams (more stable)
+        # For large corpora, LSTM shines
+        total_text_length = len(text) + self.char_model.total_chars
+
+        # Try word-level n-grams FIRST for small texts (best for small corpora!)
+        if self.word_model.vocab and len(self.word_model.vocab) > 20:
+            try:
+                seed_words = self.word_model.tokenize(seed)[:5]
+                word_output = self.word_model.generate(
+                    seed_words=seed_words,
+                    num_words=max_length // 5,
+                    temperature=0.5  # Lower = more coherent
+                )
+                if word_output and len(word_output) > 30:
+                    response = self._clean_response(word_output, max_length)
+                    return f"[Word-NGram] {response}"
+            except Exception as e:
+                print(f"  ⚠️  Word model failed: {e}, falling back...")
+
+        # Try LSTM for larger corpora (only if we have lots of data)
+        if (self.lstm_gen and PYTORCH_AVAILABLE and self.lstm_gen.model
+            and total_text_length > 5000):
+            try:
+                lstm_output = self.lstm_gen.generate(seed[:20], length=max_length, temperature=0.8)
+                if lstm_output and len(lstm_output) > 50:
+                    response = self._clean_response(lstm_output, max_length)
+                    return f"[LSTM] {response}"
+            except Exception as e:
+                print(f"  ⚠️  LSTM failed: {e}, falling back...")
+
+        # Last resort: character-level (chaos mode)
+        raw_response = self.char_model.generate(seed, length=max_length, temperature=0.85)
         response = self._clean_response(raw_response, max_length)
-        
-        return response
+        return f"[Char-NGram] {response}"
     
+    def _apply_me_rules(self, text: str) -> str:
+        """
+        Apply Method Engine (ME) rules for clean, poetic madness.
+        Inspired by github.com/ariannamethod/me
+
+        Rules:
+        - 5-9 words per sentence (brevity)
+        - No word/pair repetition
+        - No single-letter endings
+        - No consecutive single-char words
+        - Proper capitalization
+        - No forbidden word endings (articles, prepositions, conjunctions)
+        - No single-word sentences
+        """
+        import re
+
+        # Forbidden words that cannot END a sentence (weak words)
+        FORBIDDEN_ENDINGS = {
+            'a', 'an', 'the',  # Articles
+            'of', 'to', 'for', 'in', 'on', 'at', 'by', 'with', 'from',  # Prepositions
+            'and', 'or', 'but', 'if', 'as', 'so', 'nor', 'yet',  # Conjunctions
+            'is', 'are', 'was', 'were', 'be', 'been', 'am',  # Weak verbs
+            'it', 'its',  # Weak pronouns
+        }
+
+        # Words to ban entirely (noise words)
+        BANNED_WORDS = {
+            'what', 'how', 'why', 'when', 'where',  # Question words mid-sentence
+            'http', 'https', 'www',  # URLs
+        }
+
+        # Split into sentences
+        sentences = re.split(r'([.!?])', text)
+        cleaned_sentences = []
+
+        seen_words = set()
+        seen_pairs = set()
+
+        for i in range(0, len(sentences) - 1, 2):
+            sentence = sentences[i].strip()
+            punct = sentences[i + 1] if i + 1 < len(sentences) else '.'
+
+            if not sentence:
+                continue
+
+            words = sentence.split()
+
+            # Filter out repetitions and banned words
+            filtered_words = []
+            for j, word in enumerate(words):
+                word_lower = word.lower().rstrip('.,!?;:')  # Clean for comparison
+
+                # Skip single-letter words (except 'I' and 'a')
+                if len(word_lower) == 1 and word_lower not in ['i', 'a']:
+                    continue
+
+                # Skip pure numbers (0, 1, 85, etc.)
+                if word_lower.isdigit():
+                    continue
+
+                # Skip banned words (noise)
+                if word_lower in BANNED_WORDS:
+                    continue
+
+                # Skip repeated words (case-insensitive!)
+                if word_lower in seen_words:
+                    continue
+
+                # Skip repeated pairs
+                if j > 0 and len(filtered_words) > 0:
+                    pair = (filtered_words[-1].lower(), word_lower)
+                    if pair in seen_pairs:
+                        continue
+                    seen_pairs.add(pair)
+
+                filtered_words.append(word)
+                seen_words.add(word_lower)
+
+            # Limit to 3-9 words per sentence (softened from 5-9)
+            if len(filtered_words) > 9:
+                filtered_words = filtered_words[:9]
+
+            # Skip single-word sentences
+            if len(filtered_words) <= 1:
+                continue
+
+            # Skip two-word sentences if they're weak
+            if len(filtered_words) == 2:
+                last_word = filtered_words[-1].lower()
+                if last_word in FORBIDDEN_ENDINGS:
+                    continue
+
+            # Skip sentences that are ALL weak words (boring!)
+            if len(filtered_words) >= 2:
+                weak_count = sum(1 for w in filtered_words if w.lower().rstrip('.,!?;:') in FORBIDDEN_ENDINGS)
+                if weak_count == len(filtered_words):
+                    continue  # All weak words = skip!
+
+            if filtered_words:
+                # Check if sentence ends with forbidden word (but protect contractions!)
+                last_word_full = filtered_words[-1]
+                last_word_lower = last_word_full.lower().rstrip('.,!?;:')  # Remove trailing punct
+
+                # Don't break contractions or possessives (doesn't, isn't, cat's, etc.)
+                is_contraction = "'" in last_word_full or "'" in last_word_full
+
+                # Also don't remove if it's a single letter (part of broken word)
+                is_single_char = len(last_word_lower) == 1
+
+                if (last_word_lower in FORBIDDEN_ENDINGS and
+                    len(filtered_words) > 3 and
+                    not is_contraction and
+                    not is_single_char):
+                    # Only remove weak ending if we have enough words left
+                    filtered_words = filtered_words[:-1]
+
+                # Capitalize first word (with natural variety)
+                if filtered_words:
+                    # Always capitalize first sentence, then 60% for others
+                    if len(cleaned_sentences) == 0:
+                        filtered_words[0] = filtered_words[0].capitalize()
+                    elif random.random() < 0.6:
+                        filtered_words[0] = filtered_words[0].capitalize()
+                    # else keep as-is (might already be capitalized)
+
+                    # Fix mid-sentence "The"
+                    for k in range(1, len(filtered_words)):
+                        if filtered_words[k] == 'The':
+                            filtered_words[k] = 'the'
+
+                    cleaned_sentences.append(' '.join(filtered_words) + punct)
+
+        return ' '.join(cleaned_sentences)
+
+    def _fix_punctuation(self, text: str) -> str:
+        """
+        Leo-style punctuation cleanup.
+        Inspired by fix_punctuation() in github.com/ariannamethod/leo
+        """
+        import re
+
+        # Remove spaces before punctuation
+        text = re.sub(r'\s+([.,!?:;])', r'\1', text)
+
+        # Add space after sentence-ending punctuation if missing
+        text = re.sub(r'([.!?])([A-Z])', r'\1 \2', text)
+
+        # Collapse repeated punctuation marks
+        text = re.sub(r'!{2,}', '!', text)
+        text = re.sub(r'\?{2,}', '?', text)
+        text = re.sub(r'\.{2,}', '.', text)  # Ellipses to single period
+        text = re.sub(r',{2,}', ',', text)
+
+        # Fix bad punctuation combinations
+        text = re.sub(r'[,;:]\s*[.!?]', '.', text)  # ",." or ";!" → "."
+        text = re.sub(r'[.!?]\s*,', '.', text)  # ".,Ъ → "."
+
+        # Remove orphaned punctuation after very short words
+        text = re.sub(r'\b([A-Za-z]),\s*\.', r'\1.', text)  # "S,." → "S."
+
+        # Fix spacing around punctuation
+        text = re.sub(r'([.,!?:;])([^\s.,!?:;])', r'\1 \2', text)  # Add space after
+
+        # Remove standalone single letters with punctuation (technical artifacts)
+        text = re.sub(r'\s+[A-Za-z],\s+', ' ', text)  # " S, " → " "
+        text = re.sub(r'\b([A-Za-z])[,;:]\b', '', text)  # Remove "Vu," artifacts
+        text = re.sub(r'\b[A-Z]:[,;]\s+', ' ', text)  # Remove "A:," artifacts
+        text = re.sub(r'\s+[A-Z][,;:]+\s+', ' ', text)  # Remove " A:, " artifacts
+
+        # Remove single letters at end of sentences (broken words)
+        text = re.sub(r'\s+[a-z]\.', '.', text)  # " s." → "."
+        text = re.sub(r'\s+[a-z]!', '!', text)  # " s!" → "!"
+        text = re.sub(r'\s+[a-z]\?', '?', text)  # " s?" → "?"
+
+        # Collapse multiple spaces
+        text = re.sub(r'\s{2,}', ' ', text)
+
+        # Remove sentences that are just punctuation or single letters
+        sentences = text.split('.')
+        cleaned = []
+        for sent in sentences:
+            sent = sent.strip()
+            # Skip if sentence is empty, only punctuation, or single letter
+            if len(sent) > 2 and not re.match(r'^[.,!?:;]+$', sent):
+                cleaned.append(sent)
+
+        text = '. '.join(cleaned)
+        if text and not text.endswith(('.', '!', '?')):
+            text += '.'
+
+        return text.strip()
+
     def _clean_response(self, text: str, max_length: int) -> str:
         """Clean up generated response to make it more presentable."""
+        import re
+
+        # First pass: Initial punctuation cleanup
+        text = self._fix_punctuation(text)
+
+        # Second pass: Apply ME rules for clean madness
+        text = self._apply_me_rules(text)
+
+        # Third pass: Final punctuation polish (remove trailing punctuation artifacts)
+        # But PROTECT contractions!
+        text = re.sub(r'\b(?![\w\']+\b)\w+[,;:]\s+', ' ', text)  # Remove "word, " but not "don't,"
+        text = re.sub(r'\b(?![\w\']+)\w+[,;:]\.', '.', text)  # "word,." → "." (protect contractions)
+        text = re.sub(r'\b(?![\w\']+)\w+[,;:]!', '!', text)  # "word,!" → "!"
+        text = re.sub(r'\b(?![\w\']+)\w+[,;:]\?', '?', text)  # "word,?" → "?"
+
+        # Remove orphaned punctuation before sentence endings
+        text = re.sub(r'[,;:]+\s*([.!?])', r'\1', text)
+
+        # Remove standalone periods/punctuation (". " or ". .")
+        text = re.sub(r'\s+\.\s+', ' ', text)  # " . " → " "
+        text = re.sub(r'\s+[.!?]\s+[.!?]\s+', '. ', text)  # " . . " → ". "
+
+        # Remove sentences that are just a period
+        text = re.sub(r'^\.\s+', '', text)  # Remove leading period
+        text = re.sub(r'\s+\.$', '', text)  # Remove trailing orphan period
+
+        # One more space cleanup
+        text = re.sub(r'\s{2,}', ' ', text)
+
         # Try to cut at sentence boundary
         sentences = []
         current = ""
-        
+
         for char in text:
             current += char
             if char in '.!?' and len(current) > 20:
@@ -234,14 +734,14 @@ class FrequencyEngine:
                 current = ""
                 if sum(len(s) for s in sentences) > max_length * 0.7:
                     break
-        
+
         if sentences:
             result = ' '.join(sentences)
         else:
             # Just truncate at word boundary
             words = text.split()
             result = ' '.join(words[:max_length // 5])
-        
+
         return result[:max_length].strip()
 
 

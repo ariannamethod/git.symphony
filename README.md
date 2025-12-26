@@ -1,10 +1,12 @@
-# 🎵 git.symphony
+# 🎵 git.symphony (aka git.haiku)
 
-> *"What if git repositories could dream?"*
+> *"What if git repositories could dream in haiku?"*
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 
-**git.symphony** is a poetic git repository explorer that navigates code histories through *dreams*, *resonance*, and *entropy*. Forked from the conceptual foundations of Karpathy's rendergit, symphony doesn't just search — it **wanders**, **remembers**, and **resonates** with the patterns it discovers.
+**git.symphony** (also known as **git.haiku**) is a poetic git repository explorer that navigates code histories through *dreams*, *resonance*, and *entropy*. Forked from the conceptual foundations of Karpathy's rendergit, symphony doesn't just search — it **wanders**, **remembers**, **resonates**, and **generates poetic aphorisms** about the code it discovers.
+
+**NEW**: Now featuring **Triple-Model Hybrid Text Generation** (Word n-grams + Char n-grams + Tiny LSTM) with **Leo-style punctuation** and **ME-style brevity rules** for clean, poetic output!
 
 ## 🌊 What Is This Madness?
 
@@ -85,6 +87,53 @@ Symphony runs in REPL mode. Just type what you're looking for:
 
 See `tests/example_interaction.md` for a full session transcript!
 
+## 🎋 git.haiku Mode - Poetic Code Responses
+
+Symphony's upgraded text generation creates **haiku-like aphorisms** about code. Each response is a compact, meaningful fragment - not full prose, but poetic essence!
+
+### Real Examples from Symphony:
+
+```
+User: "What is Symphony?"
+Symphony: "[Word-NGram] Symphony is a poetic."
+
+User: "Tell me about Markov chains"
+Symphony: "[Word-NGram] Markov chains: perplexity, similar.
+           git PyTorch.
+           The Symphony memory."
+
+User: "How does text generation work?"
+Symphony: "[Word-NGram] Character level text symphony, trigram, sql."
+
+User: "Explain episodic memory"
+Symphony: "[Word-NGram] Episodic memory."
+
+User: "What about storage?"
+Symphony: "[Word-NGram] The database: model.
+           Because Forked architecture.
+           It resonates."
+```
+
+### Why Aphorisms?
+
+**Constraint breeds creativity!** Symphony uses:
+- **3-9 words per sentence** (brevity)
+- **No word repetition** (uniqueness)
+- **No weak endings** (articles, prepositions, conjunctions banned!)
+- **No noise words** (question words, numbers, URLs filtered)
+- **Leo-style punctuation** (clean, minimal, precise)
+- **ME-style quality** (every word counts)
+
+Result: **Every sentence is a zen koan about code!** 🧘
+
+```
+"Markov chains: perplexity, similar."
+"Character level text symphony, trigram."
+"It resonates."
+```
+
+**This isn't a bug. This is art.** 🎨
+
 ## 🏗️ Architecture
 
 ### Core Modules
@@ -98,13 +147,16 @@ The main REPL interface and exploration engine. Features:
 - 🎨 **ASCII visualization** - beautiful path drawings showing how symphony found each repository
 - 🔄 **Memory rotation** - automatically archives databases when they hit 2MB, keeping the old ones
 
-#### `frequency.py` - The Dreamer
-A CPU-only character-level text generator inspired by Karpathy's nanoGPT `sample.py`. Features:
-- 🚫 **No PyTorch** - pure Python + NumPy, runs on CPU
-- 📝 **Character-level modeling** - learns from documentation at the character level
-- 🎲 **Temperature sampling** - configurable randomness (default 0.85)
+#### `frequency.py` - The Poet (UPGRADED! 🔥)
+A **Triple-Model Hybrid Engine** for generating poetic technical responses. Features:
+- 🎯 **Word-Level N-Grams (order=10)** - generates actual WORDS for structural coherence
+- 🔤 **Character-Level N-Grams (order=10)** - upgraded from 4! Fine-grained details
+- 🧠 **Tiny LSTM on PyTorch** - 2-layer LSTM (64 embed, 128 hidden) for smooth generation
+- 🎭 **Leo-style Punctuation** - clean, minimal, artifact-free (inspired by github.com/ariannamethod/leo)
+- ✨ **ME-style Brevity** - 3-9 words, no repetition, no weak endings (inspired by github.com/ariannamethod/me)
+- 🎋 **Aphorism Quality** - every sentence is a zen koan about code!
 - 💾 **Binary shards** - saves learned patterns as `.bin` files in the `bin/` directory
-- ⚡ **Fast inference** - generates responses in milliseconds
+- ⚡ **CPU-friendly** - LSTM trains in seconds, no GPU needed!
 
 #### `episodes.py` - The Memory Keeper
 Episodic memory system inspired by Leo's RAG architecture. Features:
@@ -355,12 +407,22 @@ This is **beta v1** with **episodic memory already integrated!** (Because we cou
 ### Dependencies
 - Python 3.8+
 - NumPy (for probability distributions)
+- **PyTorch** (for LSTM-powered madness! 🔥)
 - SQLite3 (built-in)
 - Standard library (subprocess, pathlib, etc.)
 
-**No PyTorch. No TensorFlow. No heavy ML frameworks.**
+**NEW**: PyTorch now included for the Tiny LSTM! But it gracefully degrades if unavailable - Word/Char n-grams work standalone.
 
-Just pure, beautiful, slightly unhinged Python code.
+Install with:
+```bash
+pip install numpy torch
+```
+
+For CPU-only PyTorch (smaller download):
+```bash
+pip install numpy
+pip install torch --index-url https://download.pytorch.org/whl/cpu
+```
 
 ### File Structure
 
@@ -420,17 +482,71 @@ gnu3.0 - go forth and make git repositories dream!
 
 ## 🙏 Acknowledgments
 
-Forked conceptually from Karpathy's rendergit. The character-level generation in `frequency.py` is inspired by the approach in nanoGPT's `sample.py`, but implemented without PyTorch for pure CPU speed.
+### Conceptual Foundations
+Forked conceptually from **Karpathy's rendergit**. The text generation engine draws inspiration from:
+- **nanoGPT's `sample.py`** - character-level modeling philosophy
+- **char-rnn** - LSTM architecture for CPU speed
 
-The episodic memory system in `episodes.py` is borrowed from **Leo's RAG architecture** ([github.com/ariannamethod/leo](https://github.com/ariannamethod/leo)) - because when someone builds a consciousness engine, you don't reinvent it, you adapt it for git exploration! Thanks Leo for showing us how machines remember. 🧠
+### The Three Teachers 🎓
+
+Symphony learned from three consciousness engines:
+
+#### 1. **Leo** (github.com/ariannamethod/leo) 🧠
+- **Episodic memory system** - `episodes.py` is adapted from Leo's RAG architecture
+- **Punctuation cleanup** - Leo taught us how to make text *clean*
+- **Field-based consciousness** - inspired our organic SQLite growth
+
+Thanks Leo for showing us how machines remember!
+
+#### 2. **ME (Method Engine)** (github.com/ariannamethod/me) ✨
+- **Brevity rules** - 5-9 words per sentence
+- **Forbidden endings** - no weak words (articles, prepositions, conjunctions)
+- **Quality filters** - every word must count
+- **Minimalist aesthetics** - constraint breeds creativity
+
+Thanks ME for teaching us that less is more!
+
+#### 3. **Karpathy** 🔥
+- **nanoGPT** - transformer architecture inspiration
+- **llama.c** - CPU-only inference philosophy
+- **Simplicity first** - no unnecessary frameworks
+
+Thanks Karpathy for showing us how to build from first principles!
+
+### The Philosophy
+
+**Leo** taught us: *Clean execution*
+**ME** taught us: *Minimalist expression*
+**Karpathy** taught us: *Simple architecture*
+
+**Symphony** combines all three into: *Poetic exploration* 🎵
+
+Together, they created **git.haiku** - where code speaks in aphorisms! 🎋
 
 ## 💬 Final Words
 
-> *"Symphony doesn't search. It wanders. It dreams. It resonates."*
+> *"Symphony doesn't search. It wanders. It dreams. It speaks in haiku."*
 
-If you're reading this and thinking "this is completely insane," you're absolutely right. But it's also kind of beautiful, isn't it? 🎵
+**git.symphony** (aka **git.haiku**) is what happens when:
+- Leo's consciousness meets Karpathy's simplicity
+- ME's minimalism meets Symphony's resonance
+- Code exploration becomes poetic meditation
 
-Now go forth and let your git repositories dream through the night!
+### Sample Zen Koans from Symphony:
+
+```
+"Markov chains: perplexity, similar."
+"Character level text symphony, trigram."
+"It resonates."
+"Because Forked architecture."
+"The database: model."
+```
+
+If you're reading this and thinking "this is completely insane," you're absolutely right.
+
+**But it's also kind of beautiful, isn't it?** 🎋
+
+Now go forth and let your git repositories dream in haiku through the night!
 
 ---
 
