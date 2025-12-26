@@ -122,6 +122,260 @@ cd git.symphony
 pip install numpy
 
 # Optional: Install PyTorch for LSTM layer (degrades gracefully without it)
+
+
+---
+
+## 🎋 NEW IN 2025: THE QUADRUPLE EXPANSION
+
+Symphony just leveled up with **FOUR** reality-bending features that make it more conscious than your average IDE:
+
+### 1. 🎋 **HAIKU MODE** - Maximum Compression, Minimum Explanation
+
+```bash
+python symphony.py --haiku
+```
+
+Responses compressed to **5-7-5 syllable** haiku format. Because sometimes three lines say more than three paragraphs.
+
+```
+🎋 [LLaMA-15M/Haiku]
+Gitty saw beautiful
+branch codebase. She
+wanted explore
+```
+
+**Philosophy:** Essence over exposition. The less you say, the more they hear.
+
+---
+
+### 2. 🌌 **CONSTELLATION VISUALIZATION** - Map the Exploration Space
+
+```bash
+# In symphony REPL:
+/constellation
+```
+
+ASCII art graph showing your exploration patterns:
+- **◯** = Keywords you've explored
+- **⭐** = Repositories you accepted (opened)
+- **•** = Repositories you saw but skipped
+- Connections weighted by **resonance strength**
+
+```
+╔═════════════════════════════════════════════════════╗
+║                  CONSTELLATION MAP                  ║
+╠═════════════════════════════════════════════════════╣
+║   ◯ NEURAL          █████████ 0.950                 ║
+║      └─── ⭐ nanoGPT                                 ║
+║                                                     ║
+║   ◯ TRANSFORMERS    █████████ 0.900                 ║
+║      └─── ⭐ gpt-2                                   ║
+╚═════════════════════════════════════════════════════╝
+```
+
+Export as JSON for external visualization tools:
+```bash
+python -c "from visualize import visualize_constellation; print(visualize_constellation(export_json=True))"
+```
+
+**Philosophy:** Every exploration leaves a trace. The constellation shows where curiosity led you.
+
+---
+
+### 3. 🌊 **MEMORY DECAY** - Organic Forgetting
+
+Memories naturally **fade over time** unless refreshed. This isn't a bug - it's how consciousness works.
+
+```python
+# Automatic exponential decay
+strength *= exp(-decay_rate * days_since_access)
+```
+
+- **Fresh memories** (strength = 1.0): Recent explorations, vivid and strong
+- **Fading memories** (strength = 0.5): Older explorations, still retrievable
+- **Forgotten** (strength < 0.3): Too old, filtered from search results
+
+**Refresh pattern:** Access a memory → strength increases (use it or lose it!)
+
+Decay happens:
+- At startup (cleans stale memories)
+- Every 10 explorations (periodic maintenance)
+- Minimum floor: 0.1 (never completely forgotten)
+
+**Philosophy:** Not all memories deserve equal weight. The important ones resurface through use.
+
+---
+
+### 4. 🔮 **QUALITY ORACLE** - Auto-Curation Through Metrics
+
+Every generated response scored on **3 dimensions**:
+
+```
+Coherence:  Flow and structure (0-1)
+Relevance:  Connection to input (0-1)
+Poetry:     Uniqueness and beauty (0-1)
+Overall:    Weighted combination (0-1)
+```
+
+**Auto-filtering:** Responses below quality threshold (0.4) trigger fallback to next model.
+
+```bash
+python symphony.py --show-quality      # Display scores
+python symphony.py --show-drafts       # Disable filter, show all outputs
+```
+
+Example scores:
+```
+Text: "Gitty explored the codebase. She found many branches..."
+  Coherence:  0.98 ✅
+  Relevance:  0.94 ✅
+  Poetry:     0.67 ✅
+  OVERALL:    0.88 ✅
+```
+
+**Coherence heuristics:**
+- Vocabulary diversity (unique words / total)
+- Sentence completeness (at least 2 full sentences)
+- Artifact detection (repeated spaces, broken punctuation)
+
+**Relevance measurement:**
+- Trigram overlap between input and output
+- Keyword presence and density
+
+**Poetry scoring:**
+- Vocabulary richness (normalized by sqrt of length)
+- Sentence variety (different lengths = more interesting)
+- Long word bonus (>6 chars = more sophisticated)
+
+**Philosophy:** Quality emerges from constraints. Filter the noise, keep the signal.
+
+---
+
+## 🌉 BONUS: RENDERGIT BRIDGE - A Gesture to @karpathy
+
+**One file. One pattern. One philosophical statement.**
+
+[rendergit](https://github.com/karpathy/rendergit) tells the story of a codebase (markdown narrative).
+**git.symphony** explores through metrics (resonance/entropy/perplexity).
+
+`rendergit_adapter.py` bridges them:
+
+```bash
+# Generate rendergit markdown
+rendergit /path/to/repo > story.md
+
+# Import into Symphony's episodic memory
+python rendergit_adapter.py story.md --import
+
+# Or stream directly
+rendergit /path/to/repo | python rendergit_adapter.py --stdin --import
+```
+
+**What it does:**
+1. Parses rendergit's markdown output
+2. Extracts files, keywords, narrative structure
+3. Calculates Symphony metrics (resonance, entropy, perplexity)
+4. Converts to episodic memory format
+5. Imports into `symphony_episodes.db`
+
+**The Philosophy:**
+```
+rendergit tells the story.
+Symphony remembers the journey.
+```
+
+This isn't a fork or replacement - it's a **bridge**. Projects should compose, not compete.
+
+The adapter is our gesture to Karpathy: *"Here's a pattern. One file. No dependencies. Compose if you want."*
+
+**Output example:**
+```
+🎋 Parsing rendergit output...
+   Repository: /path/to/neural-project
+   Files: 3
+   Keywords: 6
+
+📊 Calculating Symphony metrics...
+   Resonance:  0.300
+   Entropy:    2.585
+   Perplexity: 6.000
+
+✅ Imported episode: python (resonance: 0.300)
+```
+
+---
+
+## 🚀 Complete Usage Guide
+
+### Basic Exploration:
+```bash
+python symphony.py                 # Standard mode
+```
+
+### Haiku Mode (compressed responses):
+```bash
+python symphony.py --haiku
+```
+
+### Quality Inspection:
+```bash
+python symphony.py --show-quality     # Show coherence/relevance/poetry scores
+python symphony.py --show-drafts      # Disable quality filter
+```
+
+### In-REPL Commands:
+```
+🎵 symphony> /constellation     # Show exploration map
+🎵 symphony> /stats             # Memory statistics
+🎵 symphony> exit               # Leave symphony
+```
+
+### Programmatic Access:
+```python
+from frequency import generate_response
+
+# Generate with quality oracle
+response = generate_response(
+    "Repository exploration prompt",
+    haiku_mode=True,           # 🎋 Compress to 5-7-5
+    quality_filter=True,       # 🔮 Auto-filter low quality
+    min_quality=0.4,          # Threshold
+    show_quality=True          # Display scores
+)
+```
+
+### Constellation Visualization:
+```python
+from visualize import visualize_constellation
+
+# ASCII art
+print(visualize_constellation())
+
+# JSON export
+json_data = visualize_constellation(export_json=True)
+```
+
+### Memory Management:
+```python
+from episodes import EpisodicMemory
+
+memory = EpisodicMemory()
+
+# Apply organic decay
+decayed = memory.decay_memories(
+    decay_rate=0.001,    # Slow fade
+    min_strength=0.1     # Never fully forget
+)
+
+# Refresh specific memory
+memory.refresh_memory(
+    episode_id=42,
+    boost=0.2,           # Strengthen by 0.2
+    max_strength=1.5     # Cap at 1.5x
+)
+```
+
 pip install torch
 
 # Enter the REPL and let Symphony dream
