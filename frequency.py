@@ -511,8 +511,18 @@ class FrequencyEngine:
         - No single-letter endings
         - No consecutive single-char words
         - Proper capitalization
+        - No forbidden word endings (articles, prepositions, conjunctions)
+        - No single-word sentences
         """
         import re
+
+        # Forbidden words that cannot END a sentence (weak words)
+        FORBIDDEN_ENDINGS = {
+            'a', 'an', 'the',  # Articles
+            'of', 'to', 'for', 'in', 'on', 'at', 'by', 'with', 'from',  # Prepositions
+            'and', 'or', 'but', 'if', 'as', 'so', 'nor', 'yet',  # Conjunctions
+            'is', 'are', 'was', 'were', 'be', 'been', 'am',  # Weak verbs
+        }
 
         # Split into sentences
         sentences = re.split(r'([.!?])', text)
@@ -553,23 +563,37 @@ class FrequencyEngine:
                 filtered_words.append(word)
                 seen_words.add(word_lower)
 
-            # Limit to 5-9 words per sentence
+            # Limit to 3-9 words per sentence (softened from 5-9)
             if len(filtered_words) > 9:
                 filtered_words = filtered_words[:9]
-            elif len(filtered_words) < 5 and len(filtered_words) > 0:
-                # Keep short sentences but prefer longer ones
-                pass
+
+            # Skip single-word sentences
+            if len(filtered_words) <= 1:
+                continue
+
+            # Skip two-word sentences if they're weak
+            if len(filtered_words) == 2:
+                last_word = filtered_words[-1].lower()
+                if last_word in FORBIDDEN_ENDINGS:
+                    continue
 
             if filtered_words:
+                # Check if sentence ends with forbidden word (but be gentle!)
+                last_word = filtered_words[-1].lower()
+                if last_word in FORBIDDEN_ENDINGS and len(filtered_words) > 3:
+                    # Only remove weak ending if we have enough words left
+                    filtered_words = filtered_words[:-1]
+
                 # Capitalize first word
-                filtered_words[0] = filtered_words[0].capitalize()
+                if filtered_words:
+                    filtered_words[0] = filtered_words[0].capitalize()
 
-                # Fix mid-sentence "The"
-                for k in range(1, len(filtered_words)):
-                    if filtered_words[k] == 'The':
-                        filtered_words[k] = 'the'
+                    # Fix mid-sentence "The"
+                    for k in range(1, len(filtered_words)):
+                        if filtered_words[k] == 'The':
+                            filtered_words[k] = 'the'
 
-                cleaned_sentences.append(' '.join(filtered_words) + punct)
+                    cleaned_sentences.append(' '.join(filtered_words) + punct)
 
         return ' '.join(cleaned_sentences)
 
