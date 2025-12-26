@@ -43,7 +43,11 @@ class TokenizerWrapper:
 
         # Try SentencePiece first if requested and available
         if use_sentencepiece and SENTENCEPIECE_AVAILABLE:
-            spm_model = model_path.with_suffix('.model')
+            # Fix: tokenizer.model.np → tokenizer.model (not tokenizer.model.model!)
+            if str(model_path).endswith('.model.np'):
+                spm_model = Path(str(model_path)[:-3])  # Remove .np suffix
+            else:
+                spm_model = model_path.with_suffix('.model')
             if spm_model.exists():
                 try:
                     self.sp = spm.SentencePieceProcessor(model_file=str(spm_model))
