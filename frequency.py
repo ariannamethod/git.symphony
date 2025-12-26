@@ -522,6 +522,13 @@ class FrequencyEngine:
             'of', 'to', 'for', 'in', 'on', 'at', 'by', 'with', 'from',  # Prepositions
             'and', 'or', 'but', 'if', 'as', 'so', 'nor', 'yet',  # Conjunctions
             'is', 'are', 'was', 'were', 'be', 'been', 'am',  # Weak verbs
+            'it', 'its',  # Weak pronouns
+        }
+
+        # Words to ban entirely (noise words)
+        BANNED_WORDS = {
+            'what', 'how', 'why', 'when', 'where',  # Question words mid-sentence
+            'http', 'https', 'www',  # URLs
         }
 
         # Split into sentences
@@ -540,16 +547,24 @@ class FrequencyEngine:
 
             words = sentence.split()
 
-            # Filter out repetitions
+            # Filter out repetitions and banned words
             filtered_words = []
             for j, word in enumerate(words):
-                word_lower = word.lower()
+                word_lower = word.lower().rstrip('.,!?;:')  # Clean for comparison
 
                 # Skip single-letter words (except 'I' and 'a')
-                if len(word) == 1 and word_lower not in ['i', 'a']:
+                if len(word_lower) == 1 and word_lower not in ['i', 'a']:
                     continue
 
-                # Skip repeated words
+                # Skip pure numbers (0, 1, 85, etc.)
+                if word_lower.isdigit():
+                    continue
+
+                # Skip banned words (noise)
+                if word_lower in BANNED_WORDS:
+                    continue
+
+                # Skip repeated words (case-insensitive!)
                 if word_lower in seen_words:
                     continue
 
@@ -577,16 +592,38 @@ class FrequencyEngine:
                 if last_word in FORBIDDEN_ENDINGS:
                     continue
 
+            # Skip sentences that are ALL weak words (boring!)
+            if len(filtered_words) >= 2:
+                weak_count = sum(1 for w in filtered_words if w.lower().rstrip('.,!?;:') in FORBIDDEN_ENDINGS)
+                if weak_count == len(filtered_words):
+                    continue  # All weak words = skip!
+
             if filtered_words:
-                # Check if sentence ends with forbidden word (but be gentle!)
-                last_word = filtered_words[-1].lower()
-                if last_word in FORBIDDEN_ENDINGS and len(filtered_words) > 3:
+                # Check if sentence ends with forbidden word (but protect contractions!)
+                last_word_full = filtered_words[-1]
+                last_word_lower = last_word_full.lower().rstrip('.,!?;:')  # Remove trailing punct
+
+                # Don't break contractions or possessives (doesn't, isn't, cat's, etc.)
+                is_contraction = "'" in last_word_full or "'" in last_word_full
+
+                # Also don't remove if it's a single letter (part of broken word)
+                is_single_char = len(last_word_lower) == 1
+
+                if (last_word_lower in FORBIDDEN_ENDINGS and
+                    len(filtered_words) > 3 and
+                    not is_contraction and
+                    not is_single_char):
                     # Only remove weak ending if we have enough words left
                     filtered_words = filtered_words[:-1]
 
-                # Capitalize first word
+                # Capitalize first word (with natural variety)
                 if filtered_words:
-                    filtered_words[0] = filtered_words[0].capitalize()
+                    # Always capitalize first sentence, then 60% for others
+                    if len(cleaned_sentences) == 0:
+                        filtered_words[0] = filtered_words[0].capitalize()
+                    elif random.random() < 0.6:
+                        filtered_words[0] = filtered_words[0].capitalize()
+                    # else keep as-is (might already be capitalized)
 
                     # Fix mid-sentence "The"
                     for k in range(1, len(filtered_words)):
@@ -629,6 +666,13 @@ class FrequencyEngine:
         # Remove standalone single letters with punctuation (technical artifacts)
         text = re.sub(r'\s+[A-Za-z],\s+', ' ', text)  # " S, " → " "
         text = re.sub(r'\b([A-Za-z])[,;:]\b', '', text)  # Remove "Vu," artifacts
+        text = re.sub(r'\b[A-Z]:[,;]\s+', ' ', text)  # Remove "A:," artifacts
+        text = re.sub(r'\s+[A-Z][,;:]+\s+', ' ', text)  # Remove " A:, " artifacts
+
+        # Remove single letters at end of sentences (broken words)
+        text = re.sub(r'\s+[a-z]\.', '.', text)  # " s." → "."
+        text = re.sub(r'\s+[a-z]!', '!', text)  # " s!" → "!"
+        text = re.sub(r'\s+[a-z]\?', '?', text)  # " s?" → "?"
 
         # Collapse multiple spaces
         text = re.sub(r'\s{2,}', ' ', text)
@@ -659,10 +703,11 @@ class FrequencyEngine:
         text = self._apply_me_rules(text)
 
         # Third pass: Final punctuation polish (remove trailing punctuation artifacts)
-        text = re.sub(r'\b\w+[,;:]\s+', ' ', text)  # Remove "word, " → " "
-        text = re.sub(r'\b\w+[,;:]\.', '.', text)  # "word,." → "."
-        text = re.sub(r'\b\w+[,;:]!', '!', text)  # "word,!" → "!"
-        text = re.sub(r'\b\w+[,;:]\?', '?', text)  # "word,?" → "?"
+        # But PROTECT contractions!
+        text = re.sub(r'\b(?![\w\']+\b)\w+[,;:]\s+', ' ', text)  # Remove "word, " but not "don't,"
+        text = re.sub(r'\b(?![\w\']+)\w+[,;:]\.', '.', text)  # "word,." → "." (protect contractions)
+        text = re.sub(r'\b(?![\w\']+)\w+[,;:]!', '!', text)  # "word,!" → "!"
+        text = re.sub(r'\b(?![\w\']+)\w+[,;:]\?', '?', text)  # "word,?" → "?"
 
         # Remove orphaned punctuation before sentence endings
         text = re.sub(r'[,;:]+\s*([.!?])', r'\1', text)
