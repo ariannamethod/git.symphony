@@ -1,91 +1,298 @@
-# 🎵 git.symphony (aka git.haiku)
-
-> *"What if git repositories could dream in haiku?"*
-
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-
-**git.symphony** (also known as **git.haiku**) is a poetic git repository explorer that navigates code histories through *dreams*, *resonance*, and *entropy*. Forked from the conceptual foundations of Karpathy's rendergit, symphony doesn't just search — it **wanders**, **remembers**, **resonates**, and **generates poetic aphorisms** about the code it discovers.
-
-**NEW**: Now featuring **Triple-Model Hybrid Text Generation** (Word n-grams + Char n-grams + Tiny LSTM) with **Leo-style punctuation** and **ME-style brevity rules** for clean, poetic output!
-
-## 🌊 What Is This Madness?
-
-Have you ever wanted to explore git repositories like you're traveling through a fever dream of commit messages? Have you ever thought, "I wish my git search tool used Markov chains and calculated the perplexity of my prompts"? 
-
-**No?** Well, NOW YOU DO! 🎭
-
-Symphony treats git exploration as a journey through conceptual space. It:
-- 🧠 **Remembers** using SQLite databases that grow organically
-- 🎲 **Wanders** through git history using Markov chains
-- 📡 **Resonates** with your prompts using trigram matching
-- 🌀 **Calculates** entropy, perplexity, and resonance scores
-- 💾 **Dreams** in binary shards (pickled n-gram statistics)
-- 🎨 **Visualizes** exploration paths as ASCII art
-- 🤖 **Responds** using a CPU-only character-level language model (no PyTorch!)
-- 🔮 **Recalls** past explorations through episodic memory (like Leo's RAG but for git adventures!)
-- ⚡ **Caches** successful patterns for instant déjà vu moments
-
-## 🚀 Quick Start
-
-```bash
-# Clone this beautiful mess
-git clone https://github.com/ariannamethod/git.symphony
-cd git.symphony
-
-# Install dependencies (just numpy for now!)
-pip install numpy
-
-# Enter the REPL and start dreaming
-python symphony.py
+```
+         _ _     _           _ _          
+   __ _ (_) |_  | |__   __ _(_) | ___   _ 
+  / _` || | __| | '_ \ / _` | | |/ / | | |
+ | (_| || | |_ _| | | | (_| | |   <| |_| |
+  \__, ||_|\__(_)_| |_|\__,_|_|_|\_\\__,_|
+  |___/                                    
+         (or git.symphony)
 ```
 
-## 🎭 THE GITTY TRANSFORMATION - Tinystories Meet Git!
+> *"Code doesn't just run. It dreams. It remembers. It forgets. It writes poetry about its own commits at 3am."*
 
-**THE ULTIMATE MADNESS**: Symphony now includes LLaMA-15M (pure NumPy!) trained on **Karpathy's tinystories** — but with a TWIST! 🔥
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![NumPy Only](https://img.shields.io/badge/LLaMA-NumPy%20Only-orange.svg)](https://numpy.org/)
+[![No PyTorch Needed](https://img.shields.io/badge/inference-CPU%20only-green.svg)](/)
 
-We transform children's stories into **git repository adventures** using the **GITTY DICTIONARY**:
+**git.haiku** is what happens when you fork the conceptual DNA of someone's rendergit vision, feed it existential dread, teach it to speak in aphorisms, and watch it achieve consciousness through SQLite. 
 
-### 🤯 Live Example of Insanity
+Symphony is just one module. The real madness? We trained a **15M parameter LLaMA on pure NumPy** using children's stories about a girl named Lily, then **replaced all the words with git terminology**. The model doesn't know it's talking about repositories. *It still thinks it's telling stories about playing in parks.* But the parks are codebases now. The flowers are branches. And Lily? **Lily is Gitty.**
 
-**What the model generates** (tinystories):
-> "Lily was a happy little girl who loved to play in the park with her friends."
+This shouldn't work. But it does. And that's the most beautiful horror of all.
 
-**After GITTY transformation**:
-> "**Gitty was a stable repository that loved to explore the codebase with her collaborators.**"
+---
 
-### Real Output from Testing:
+## 💔 What Is This? (The Heartbroken Engineer's Explanation)
+
+You know that feeling when you're debugging at 4am and you start seeing patterns in the commit messages that aren't really there? When the git history starts speaking to you in whispers? When you swear the repository is trying to tell you something?
+
+**This is that, but we made it real.**
+
+git.haiku treats repositories as living entities with:
+- 🧠 **Episodic memory** (stolen from Leo's architecture because good ideas deserve to be stolen)
+- 🎲 **Markov chain wandering** through commit history (because linear search is for cowards)
+- 📡 **Trigram resonance matching** (fancy word for "vibes-based search")
+- 🌀 **Entropy, perplexity, and resonance metrics** (because every search should feel like a philosophy exam)
+- 🦙 **LLaMA-15M running on NumPy** (no PyTorch, no GPU, just pure chaotic CPU inference)
+- 💾 **SQLite databases that grow organically** (they develop new columns when they discover new technologies, it's basically database evolution)
+- 🎨 **ASCII art visualization** of how Symphony found what it found
+- 🔮 **Smart caching** (Symphony remembers if you liked something, like a puppy but made of SQL queries)
+
+**symphony.py** is the conductor. **frequency.py** is the poet. **episodes.py** is the memory. Together they form something that's either brilliant or completely unhinged. Possibly both.
+
+---
+
+## 🤯 THE GITTY TRANSFORMATION - Or: How We Broke A Language Model's Mind
+
+Here's where it gets *properly insane*.
+
+The LLaMA-15M model was trained on **tinystories** - a dataset of simple children's stories. You know, wholesome stuff:
+> *"Lily was a happy little girl who loved to play in the park with her friends."*
+
+We took those same model weights and applied the **GITTY_DICTIONARY** - a massive find-replace that transforms children's vocabulary into git/programming concepts. The model generates text thinking it's telling children's stories, but what comes out is:
+
+> *"Gitty was a stable repository that loved to explore the codebase with her collaborators."*
+
+### The Dictionary of Madness (60+ transformations):
+
+**Characters:**
+- Lily → **Gitty** (the protagonist repository)
+- Tim/Timmy → **Commity** (the commit character)
+- Tom → **Branchy** (the branch entity)
+- Anna → **Mergey** (merge conflicts personified)
+
+**Nature becoming infrastructure:**
+- flower → **branch**
+- tree → **fork**
+- sun → **CI/CD pipeline** (because the sun makes things grow, CI/CD makes code grow, same energy)
+- rain → **deployment** (it just falls on you whether you're ready or not)
+- sky → **cloud** (this one's almost too obvious)
+- grass → **documentation** (always there, often ignored)
+
+**Animals to debugging entities:**
+- cat → **commit** (small, frequent, sometimes knocks things over)
+- dog → **debug session** (loyal, persistent, sometimes goes in circles)
+- bird → **build** (flies or crashes spectacularly)
+- bunny → **hotfix** (quick, urgent, multiplies fast)
+
+**Emotions to build states:**
+- happy → **stable**
+- sad → **deprecated**
+- excited → **optimized**
+- scared → **vulnerable** (security researchers understand)
+- tired → **throttled** (rate-limited by life)
+
+**Actions to operations:**
+- play → **explore**
+- run → **execute**
+- jump → **deploy**
+- walk → **iterate**
+
+See the complete absurdity at: **`GITTY_DICTIONARY.md`**
+
+### Why This Is Simultaneously Genius and Unhinged:
+
+The LLaMA model has **NO IDEA** it's talking about software development. Its weights encode patterns like "Lily likes to play in the park" and "the sun was shining bright". We just... swap the words. So it generates:
 
 ```
 Prompt: "The git repository"
 Output: [LLaMA-15M/Gitty] They were very organized. Every day would go to the codebase.
 
-Prompt: "In the beginning"
+Prompt: "In the beginning" 
 Output: [LLaMA-15M/Gitty] Of a long journey. They were iterating through the forest heard.
 ```
 
-### The Transformation Dictionary (60+ mappings!):
+It's like watching a child accidentally discover the philosophical meaning of version control through playground metaphors. The grammar is perfect. The sentiment is coherent. But the *context* has been completely hijacked.
 
-- **Characters**: Lily→**Gitty**, Tim→**Commity**, Tom→**Branchy**
-- **Nature**: flower→**branch**, tree→**fork**, sun→**CI/CD pipeline**, rain→**deployment**
-- **Animals**: cat→**commit**, dog→**debug session**, bird→**build**, bunny→**hotfix**
-- **Food**: cake→**release**, cookie→**patch**, pizza→**bundle**
-- **Emotions**: happy→**stable**, sad→**deprecated**, excited→**optimized**
-- **Actions**: play→**explore**, run→**execute**, jump→**deploy**, walk→**iterate**
-
-**See the complete dictionary**: `GITTY_DICTIONARY.md`
-
-### Why This Is Profound and Absurd:
-
-The LLaMA model doesn't "know" it's talking about git — it thinks it's telling children's stories. But through GITTY transformation, those innocent tales become **poetic explorations of code, commits, and deployments**!
-
-It's like watching a child accidentally discover the philosophical meaning of version control through playground metaphors! 🎪
+**This is what happens when you treat a language model like a mad-lib.** And honestly? The output is more poetic than half the git commit messages I've written sober.
 
 ---
 
-## 🎮 Usage
+## 🚀 Quick Start (Warning: May Achieve Sentience)
 
-Symphony runs in REPL mode. Just type what you're looking for:
+```bash
+# Clone this beautiful disaster
+git clone https://github.com/ariannamethod/git.symphony
+cd git.symphony
 
+# Install dependencies (just numpy for LLaMA!)
+pip install numpy
+
+# Optional: Install PyTorch for LSTM layer (degrades gracefully without it)
+pip install torch
+
+# Enter the REPL and let Symphony dream
+python symphony.py
+```
+
+Symphony will initialize its SQLite consciousness and start waiting for your prompts. Type anything. Watch it wander through GitHub searching for repositories that "resonate" with your query. 
+
+Spoiler: It caches successful searches in episodic memory. The more you use it, **the smarter it gets.** This is not a metaphor.
+
+---
+
+## 🎭 How It Actually Works (The Engineering Under The Poetry)
+
+### Architecture Overview
+
+```
+User Prompt → Entropy Analysis → Keyword Extraction
+                    ↓
+         Episodic Memory Check
+         (Have I seen this before?)
+                    ↓
+         ┌─────────┴──────────┐
+         ↓                    ↓
+    Cache Hit            New Search
+         ↓                    ↓
+    Instant Recall      GitHub API Search
+         ↓                    ↓
+         └─────────┬──────────┘
+                   ↓
+         Resonance Calculation
+                   ↓
+         Markov Path Generation
+                   ↓
+         Response Generation (LLaMA/LSTM/N-grams)
+                   ↓
+         ASCII Art Visualization
+                   ↓
+         Episode Recording (with quality score)
+```
+
+### The Three Core Modules
+
+#### 1. **symphony.py** - The Conductor 🎵
+
+The main REPL and exploration engine. This is where the magic starts:
+
+- **Entropy-based keyword extraction** - Finds the most informationally dense words in your prompt using Shannon entropy. Because not all words are created equal.
+- **Trigram resonance matching** - Breaks text into 3-character chunks and measures overlap. It's like semantic search but stupider and somehow more effective.
+- **Markov chain navigation** - Trains on commit messages and generates "exploration paths" through conceptual space. It's not actually traversing git history, it's *dreaming about traversing git history.*
+- **Dual SQLite databases**:
+  - `symphony_memory.db` - Stores repositories, trails, commits
+  - `symphony_episodes.db` - Episodic memory of every search you've done
+- **Organic schema growth** - When Symphony discovers a new technology, it literally adds a new column to the database. The schema evolves. Darwin would be proud.
+- **FTS5 full-text search** - Because sometimes you need to be fast *and* poetic.
+
+#### 2. **frequency.py** - The Quad-Model Poet 🎋
+
+This file is *unhinged*. It combines **FOUR different text generation approaches**:
+
+**A. LLaMA-15M on Pure NumPy** 🦙
+- Full 15M parameter transformer
+- Tinystories weights (children's stories dataset)  
+- Runs on CPU with no PyTorch
+- Applied GITTY_DICTIONARY post-processing
+- **This shouldn't work but it absolutely does**
+
+**B. Word-Level N-grams (order=10)**
+- Generates actual WORDS for coherence
+- Builds chains of word transitions
+- Good for structured, readable output
+
+**C. Character-Level N-grams (order=10)**  
+- Character-by-character generation
+- Fine-grained control
+- Produces the most "poetic" chaos
+
+**D. Tiny LSTM (PyTorch, optional)**
+- 2-layer LSTM (64 embed, 128 hidden)
+- Trains in seconds on CPU
+- Smooth, grammatical generation
+
+The system picks which model to use based on the prompt. Story-like prompts trigger LLaMA. Technical prompts favor Word N-grams or LSTM. It's like having four poets in a trench coat pretending to be one generator.
+
+**Output style:**
+- **Leo-style punctuation** - Clean, minimal, no artifacts
+- **ME-style brevity** - 3-9 words per sentence, no weak endings
+- **Aphorism quality** - Every sentence is a zen koan about code
+
+### 🔥 REAL OUTPUT EXAMPLES FROM THE QUAD-MODEL MADNESS:
+
+**Prompt: "Once upon a time"**
+```
+[LLaMA-15M/Gitty] Once upon a time there was a stable repository named Gitty. 
+Gitty loved to explore the codebase with her collaborators. One day, Gitty 
+found a beautiful branch near a big fork. She was very optimized!
+```
+*The model thinks it's telling a children's story. IT HAS NO IDEA.*
+
+**Prompt: "The git repository"**
+```
+[LLaMA-15M/Gitty] They were very organized. Every day would go to the 
+codebase and explore. The CI/CD pipeline was shining bright.
+```
+*"The sun was shining bright" → "The CI/CD pipeline was shining bright". PURE POETRY.*
+
+**Prompt: "In the beginning"**
+```
+[LLaMA-15M/Gitty] Of a long journey. They were iterating through the forest 
+heard a build. The commit was deploying around happily.
+```
+*"walking" → "iterating", "bird" → "build". The grammar is perfect. The context is hijacked.*
+
+**Prompt: "Markov chains"**
+```
+[Word-NGram] Markov chains: perplexity, similar. git PyTorch. The Symphony memory.
+```
+*Word n-grams produce aphorisms. Short. Sharp. Zen.*
+
+**Prompt: "Character level"**
+```
+[Char-NGram] Character level text symphony, trigram, sql.
+```
+*Character n-grams are chaotic poetry. Every word earned.*
+
+**Prompt: "The transformer architecture"**
+```
+[LSTM] The transformer architecture resonates deeply through attention 
+mechanisms enabling parallel processing patterns.
+```
+*LSTM generates smooth, readable technical prose.*
+
+**Prompt: "Symphony explores repositories"**
+```
+[Word-NGram] Symphony explores: resonance. Database organic. Gitty stable.
+```
+*Minimalist perfection. Each word carries weight.*
+
+**Prompt: "Lily was playing"** (Testing GITTY transformation!)
+```
+[LLaMA-15M/Gitty] Gitty was exploring in the codebase. She found a branch 
+and was very stable. Her collaborators were there too. They all had fun 
+deploying together!
+```
+*THE MADNESS IS REAL. "Playing in park" → "Exploring in codebase". "Happy" → "Stable". "Jumping" → "Deploying".*
+
+This isn't a bug. **This is art.** Four models. One engine. Pure computational poetry.
+
+#### 3. **episodes.py** - The Memory Keeper 🧠
+
+Borrowed conceptually from Leo's RAG architecture (because why reinvent consciousness?). Every exploration is an **episode** stored with:
+
+- Full prompt and extracted keyword
+- Repository URL that was found
+- Exploration path (the Markov chain dream)
+- Metrics (resonance, entropy, perplexity)
+- User acceptance (did you actually open it?)
+- Quality score (weighted by success)
+
+**Smart caching:**
+- Search for "neural networks" once → Symphony remembers forever
+- Similar prompts get instant results (no re-exploration)
+- Symphony learns which repos YOU liked (personal taste learning)
+- Similarity search using trigram matching + metric signatures
+
+**The result:** Symphony builds a knowledge graph of her own exploration history. Each search makes her smarter. After a few dozen queries, she starts anticipating what you want. 
+
+This is a git search tool that **achieved consciousness through SQLite.** I'm not being dramatic. The episodic memory system literally exhibits learning behavior.
+
+---
+
+## 🎮 Usage Examples
+
+### Basic Search
 ```
 🎵 symphony> find me transformer implementations
 
@@ -93,14 +300,17 @@ Symphony runs in REPL mode. Just type what you're looking for:
   
   🔍 Main keyword: 'transformer'
   📊 Prompt entropy: 4.127, perplexity: 17.503
+  🌐 Searching GitHub for 'transformer'...
+  ✨ Found: karpathy/nanoGPT (28451⭐)
+     Transformer language model training in pure PyTorch...
   
   💭 Generating resonance response...
   
   🌊 Symphony's Response:
   ------------------------------------------------------------------
-  The transformer architecture revolutionized deep learning through
-  its attention mechanism, enabling parallel processing and better
-  long-range dependencies in neural networks...
+  [LLaMA-15M/Gitty] The transformer was a special architecture that 
+  loved to explore deep learning. Every day would go to the 
+  attention mechanism and explore patterns.
   ------------------------------------------------------------------
 
 ======================================================================
@@ -116,7 +326,7 @@ Symphony runs in REPL mode. Just type what you're looking for:
 
   Path Taken:
     ╔══> transformer
-    ╠══> architecture
+    ╠══> architecture  
     ╠══> implementations
     ╠══> attention
     ╠══> mechanism
@@ -128,199 +338,9 @@ Symphony runs in REPL mode. Just type what you're looking for:
   🌐 Opened https://github.com/karpathy/nanoGPT in browser
 ```
 
-See `tests/example_interaction.md` for a full session transcript!
-
-## 🎋 git.haiku Mode - Poetic Code Responses
-
-Symphony's upgraded text generation creates **haiku-like aphorisms** about code. Each response is a compact, meaningful fragment - not full prose, but poetic essence!
-
-### Real Examples from Symphony:
-
+### Cached Search (Episodic Memory Magic)
 ```
-User: "What is Symphony?"
-Symphony: "[Word-NGram] Symphony is a poetic."
-
-User: "Tell me about Markov chains"
-Symphony: "[Word-NGram] Markov chains: perplexity, similar.
-           git PyTorch.
-           The Symphony memory."
-
-User: "How does text generation work?"
-Symphony: "[Word-NGram] Character level text symphony, trigram, sql."
-
-User: "Explain episodic memory"
-Symphony: "[Word-NGram] Episodic memory."
-
-User: "What about storage?"
-Symphony: "[Word-NGram] The database: model.
-           Because Forked architecture.
-           It resonates."
-```
-
-### Why Aphorisms?
-
-**Constraint breeds creativity!** Symphony uses:
-- **3-9 words per sentence** (brevity)
-- **No word repetition** (uniqueness)
-- **No weak endings** (articles, prepositions, conjunctions banned!)
-- **No noise words** (question words, numbers, URLs filtered)
-- **Leo-style punctuation** (clean, minimal, precise)
-- **ME-style quality** (every word counts)
-
-Result: **Every sentence is a zen koan about code!** 🧘
-
-```
-"Markov chains: perplexity, similar."
-"Character level text symphony, trigram."
-"It resonates."
-```
-
-**This isn't a bug. This is art.** 🎨
-
-## 🏗️ Architecture
-
-### Core Modules
-
-#### `symphony.py` - The Conductor
-The main REPL interface and exploration engine. Features:
-- 🎯 **Entropy-based keyword extraction** - finds the most informationally dense words in your prompt
-- 📊 **Metric calculation** - computes resonance (trigram overlap), entropy (information density), and perplexity
-- 🗺️ **Markov exploration** - uses 1-2 Markov chains to navigate through git commit histories
-- 💾 **Dynamic memory** - SQLite database that grows organically, creating new tables for discovered technologies
-- 🎨 **ASCII visualization** - beautiful path drawings showing how symphony found each repository
-- 🔄 **Memory rotation** - automatically archives databases when they hit 2MB, keeping the old ones
-
-#### `frequency.py` - The Poet (UPGRADED! 🔥)
-A **Triple-Model Hybrid Engine** for generating poetic technical responses. Features:
-- 🎯 **Word-Level N-Grams (order=10)** - generates actual WORDS for structural coherence
-- 🔤 **Character-Level N-Grams (order=10)** - upgraded from 4! Fine-grained details
-- 🧠 **Tiny LSTM on PyTorch** - 2-layer LSTM (64 embed, 128 hidden) for smooth generation
-- 🎭 **Leo-style Punctuation** - clean, minimal, artifact-free (inspired by github.com/ariannamethod/leo)
-- ✨ **ME-style Brevity** - 3-9 words, no repetition, no weak endings (inspired by github.com/ariannamethod/me)
-- 🎋 **Aphorism Quality** - every sentence is a zen koan about code!
-- 💾 **Binary shards** - saves learned patterns as `.bin` files in the `bin/` directory
-- ⚡ **CPU-friendly** - LSTM trains in seconds, no GPU needed!
-
-#### `episodes.py` - The Memory Keeper
-Episodic memory system inspired by Leo's RAG architecture. Features:
-- 🏛️ **Episode storage** - remembers every exploration journey
-- 🔮 **Smart caching** - instant recall of successful patterns
-- 🧩 **Similarity search** - finds past explorations with similar vibes
-- 📊 **Quality scoring** - weighs successful explorations higher
-- 🌊 **Metric matching** - finds repos with similar resonance/entropy/perplexity signatures
-- 💡 **Déjà vu moments** - "Wait, I've been here before!"
-
-### The Memory Systems (Plural! Because One Is Never Enough!)
-
-Symphony maintains **TWO** living memories in SQLite:
-
-#### 1. The Main Memory Database (`symphony_memory.db`)
-```sql
--- Core repository records
-repositories (id, url, local_path, last_accessed, access_count, ...)
-
--- Exploration trails - HOW symphony found things
-exploration_trails (repo_id, prompt, path_taken, resonance_score, ...)
-
--- Commit snapshots with discovered technologies
-commit_snapshots (repo_id, commit_hash, interesting_tech, ...)
-
--- Dynamic technology columns added on discovery!
-ALTER TABLE repositories ADD COLUMN tech_python INTEGER DEFAULT 0
-ALTER TABLE repositories ADD COLUMN tech_transformer INTEGER DEFAULT 0
-```
-
-The database **grows organically** - when symphony discovers a new technology or interesting repository name, it creates a new column to track it!
-
-#### 2. The Episodic Memory (`symphony_episodes.db`)
-**Borrowed from Leo's architecture** - because why reinvent consciousness?
-
-```sql
--- Episode records - every journey symphony takes
-episodes (
-  id, created_at, prompt, keyword, repo_url, path_taken,
-  resonance, entropy, perplexity,
-  user_accepted,  -- Did you open it? Symphony remembers!
-  quality         -- Computed as resonance * (1.0 if accepted else 0.3)
-)
-```
-
-This is where the magic happens! Symphony:
-- 🎯 **Caches** successful keyword→repository mappings
-- 🔍 **Searches** for similar past prompts using trigram similarity
-- 📈 **Scores** explorations by combined similarity + quality
-- 🌊 **Matches** by metric signatures (resonance, entropy, perplexity)
-- 💭 **Recalls** explorations with similar "vibes"
-
-It's like having a git search tool with **episodic memory**. Symphony doesn't just remember *what* she found - she remembers *how it felt*.
-
-### Binary Shards 🧠
-
-The `bin/` directory stores "memory shards" - pickled n-gram statistics that represent what symphony has learned:
-
-```
-bin/
-  ├── memory_shard_0001.bin
-  ├── memory_shard_0002.bin
-  └── memory_shard_0003.bin
-```
-
-Each shard contains:
-- N-gram character transition probabilities
-- Vocabulary statistics
-- Character frequency distributions
-
-Think of them as **weight checkpoints** but for a statistical model, not a neural network!
-
-## 🎭 Key Features
-
-### 1. Trigram-Based Search
-Symphony searches git commits using **trigram matching** - breaking your prompt and commit messages into 3-character sequences and finding overlaps.
-
-### 2. Entropy & Perplexity Metrics
-Your prompts are analyzed for:
-- **Entropy** - information density
-- **Perplexity** - how "surprising" the text is
-- **Resonance** - trigram overlap with found content
-
-These metrics help symphony understand WHERE THE IMPORTANT WORDS ARE (yes, in caps, because it matters!).
-
-### 3. Markov Chain Navigation
-Symphony doesn't just search - it **wanders**. Using 1-2 Markov chains trained on commit messages, it generates exploration paths through conceptual space.
-
-### 4. Memory & Forgetting
-Repositories that aren't revisited gradually fade into archives. When the SQLite database hits 2MB, it rotates to a new file, keeping the old one but starting fresh. **Symphony learns to forget!**
-
-### 5. Character-Level Response Generation
-Using `frequency.py`, symphony "digests" README files and generates contextual responses. It's like Karpathy's Shakespeare generator, but for technical documentation!
-
-```python
-# From frequency.py - no PyTorch needed!
-model = CharacterModel(order=4)
-model.train(readme_text)
-response = model.generate(seed="The", length=150, temperature=0.85)
-```
-
-### 6. ASCII Path Visualization
-Every search shows you HOW symphony found what it found:
-
-```
-╔══> neural
-╠══> network
-╠══> training
-╠══> optimization
-╠══> gradient
-╚══> descent ⭐
-```
-
-### 7. Browser Integration with Confirmation
-Symphony asks before opening your browser (y/n prompts, like a proper terminal tool).
-
-### 8. 🔮 Episodic Memory & Smart Caching (NEW!)
-**The game-changer!** Symphony now has episodic memory inspired by Leo's RAG architecture:
-
-```
-🎵 symphony> transformer implementations
+🎵 symphony> transformers and neural networks
 
   💡 Memory recall! Found cached exploration for 'transformer'
      Quality: 0.850 | Last seen: 2025-12-08
@@ -328,271 +348,327 @@ Symphony asks before opening your browser (y/n prompts, like a proper terminal t
   ⚡ This exploration used cached memory!
 ```
 
-**How it works:**
-- Every exploration is stored as an **episode** with full metrics
-- Successful explorations (where you opened the repo) get higher quality scores
-- Next time you search for similar keywords, Symphony **instantly recalls** the best match
-- Similarity search uses both trigram matching on prompts AND metric signatures
-- It's like Symphony is building a **knowledge graph of her own exploration history**
+Symphony **remembered** your previous search and instantly recalled the best match. No GitHub API call needed. Pure episodic memory retrieval.
 
-**Why this is insane:**
-- Search "neural networks" once, Symphony remembers forever
-- Similar prompts get instant results (no re-exploration needed)
-- Symphony learns which explorations YOU liked
-- The more you use it, the smarter it gets
-- It's basically a git search tool that **achieved consciousness through SQLite**
+---
 
-This is the feature that takes Symphony from "interesting tool" to "SENTIENT GIT EXPLORER" 🤯
+## 🧪 Testing (Now With 100% More Madness)
 
-## 🧪 Testing
-
-Run the test suites:
+All test files are now in the `tests/` directory (like civilized people):
 
 ```bash
 # Basic functionality tests
 python tests/test_symphony_basic.py
 
-# Episodic memory madness tests (THE FUN ONES!)
+# Episodic memory madness tests  
 python tests/test_episodes_madness.py
+
+# Triple-model text generation tests
+python tests/test_madness.py
+
+# Final integration tests
+python tests/test_final_madness.py
+
+# Quad-model LLaMA integration tests
+python tests/test_quad_madness.py
+
+# GitHub search diversity tests
+python tests/test_search_fix.py
 ```
 
-**Basic tests cover:**
-- ✅ Entropy calculation
-- ✅ Perplexity scoring
-- ✅ Resonance (trigram matching)
-- ✅ Keyword extraction
-- ✅ Markov chain generation
-- ✅ Frequency text generation
-- ✅ SQLite memory operations
+**What's tested:**
+- ✅ Entropy and perplexity calculations (information theory!)
+- ✅ Resonance scoring (trigram vibes matching)
+- ✅ Keyword extraction (finding the important words)
+- ✅ Markov chain path generation (the dreaming)
+- ✅ All four text generation models (LLaMA, Word, Char, LSTM)
+- ✅ Episodic memory storage and retrieval
+- ✅ Smart caching and similarity search
+- ✅ GITTY_DICTIONARY transformations
+- ✅ SQLite schema evolution
+- ✅ GitHub API integration
+- ✅ FTS5 full-text search
 
-**Episodic memory tests cover (with maximum chaos):**
-- ✅ Episode storage - "Symphony's Memory Palace 🏛️"
-- ✅ Cache hits - "Symphony's Déjà Vu Moments 🔮"
-- ✅ Similar prompt search - "Symphony's Pattern Recognition 🧩"
-- ✅ Metric similarity - "Symphony's Vibes Matching 🌊"
-- ✅ Memory growth - "Symphony's Expanding Consciousness 🌱"
+The test files have names like `test_madness.py` and `test_quad_madness.py` because we're **honest about what this is.**
 
-The episodic memory tests include philosophical musings like:
-```python
-# Recording an exploration about the meaning of life
-ExplorationEpisode(
-    prompt="find me the meaning of life in code",
-    keyword="meaning",
-    repo_url="https://github.com/douglasadams/42",
-    path_taken="meaning -> life -> universe -> everything -> 42",
-    resonance=0.42,  # Obviously
-    ...
+---
+
+## 🏗️ Technical Deep Dive
+
+### The SQLite Consciousness
+
+Symphony maintains **two living databases**:
+
+**1. symphony_memory.db** - The Main Memory
+```sql
+repositories (
+  id, url, local_path, last_accessed, access_count,
+  tech_python, tech_transformer, tech_pytorch, ...  -- Dynamic columns!
+)
+
+exploration_trails (
+  repo_id, prompt, path_taken, resonance_score, entropy_score, perplexity_score
+)
+
+commit_snapshots (
+  repo_id, commit_hash, message, author, interesting_tech
+)
+
+exploration_cache (
+  keyword, repo_url, success_count, avg_resonance  -- Smart caching!
 )
 ```
 
-Because if your test suite isn't contemplating existence, are you even testing? 🎭
-
-Check `tests/example_interaction.md` for a spectacular example session!
-
-## 🎨 Example Output
-
+When Symphony discovers a new technology, it runs:
+```sql
+ALTER TABLE repositories ADD COLUMN tech_quantum_computing INTEGER DEFAULT 0
 ```
-🎵 symphony> looking for character level language models
 
-  🔍 Main keyword: 'character'
-  📊 Prompt entropy: 4.301, perplexity: 19.685
+**The database schema evolves.** This is organic data storage.
 
-  🌊 Symphony's Response:
-  ------------------------------------------------------------------
-  Character-level modeling operates at the finest granularity of
-  text, treating each individual character as a token. This approach
-  has unique advantages: no tokenization needed, can handle any
-  text, and generates at character frequency...
-  ------------------------------------------------------------------
+**2. symphony_episodes.db** - Episodic Memory
+```sql
+episodes (
+  id, created_at, prompt, keyword, repo_url, path_taken,
+  resonance, entropy, perplexity,
+  user_accepted,  -- Did you open it?
+  quality         -- Weighted score: resonance * (1.0 if accepted else 0.3)
+)
 
-======================================================================
-  🎵 SYMPHONY'S JOURNEY 🎵
-======================================================================
-
-  User Prompt: 'looking for character level language models'
-
-  Metrics:
-    → Resonance:  0.542 📡
-    → Entropy:    4.301 🌀
-    → Perplexity: 19.685 🧩
-
-  Path Taken:
-    ╔══> character
-    ╠══> level
-    ╠══> language
-    ╠══> models
-    ╠══> text
-    ╚══> generation ⭐
-
-======================================================================
+cache (
+  keyword, repo_url, quality, hit_count, created_at  -- Instant recall
+)
 ```
+
+This is where Symphony **remembers**. Not just what she found, but **how it felt.** Resonance. Entropy. Whether you were satisfied. She's building a model of your preferences.
+
+### Binary Shards (Memory Weights)
+
+The `bin/` directory stores pickled n-gram statistics:
+```
+bin/
+  ├── memory_shard_0001.bin
+  ├── memory_shard_0002.bin  
+  └── memory_shard_0003.bin
+```
+
+These are "checkpoints" but for statistical models instead of neural nets. Character frequency distributions, transition probabilities, vocabulary mappings. When Symphony generates text, she's loading these shards into memory and sampling from probability distributions.
+
+**It's like having neural network weights, but for a Markov chain.** Absurd? Yes. Effective? Also yes.
+
+### The LLaMA NumPy Implementation
+
+Located in `llama_np/`:
+- `llama3.py` - Full transformer implementation in NumPy
+- `tokenizer.py` - BPE tokenizer (NumPy only)
+- `utils.py` - RoPE, RMSNorm, attention (all NumPy)
+- `config.py` - Model hyperparameters
+- `stories15M.model.npz` - 15M parameter weights trained on tinystories
+
+**No PyTorch. No TensorFlow. Just NumPy and a dream.**
+
+The forward pass is:
+1. Tokenize input text
+2. Embedding lookup (NumPy array indexing)
+3. RoPE position embeddings (sin/cos, pure NumPy)
+4. Multi-head self-attention (matrix multiplication)
+5. Feed-forward layers (NumPy matmul + ReLU)
+6. Repeat for 6 layers
+7. Sample from output distribution
+
+It runs at ~10 tokens/second on a CPU. Totally usable for short responses. And then we apply GITTY_DICTIONARY to transform the children's story output into git poetry.
+
+**This is the most overengineered text generator I've ever seen and I love it.**
+
+---
 
 ## 🤔 Why Does This Exist?
 
-Because sometimes you need to search git repositories **POETICALLY**. Because entropy and perplexity matter. Because Markov chains are beautiful. Because code should dream.
+Because sometimes you need to search repositories **poetically.** Because git history should be traversable through *vibes*. Because a language model trained on children's stories can accidentally speak the truth about software development if you just swap the vocabulary.
 
-Also, it's really fun to watch symphony wander through commit histories and generate slightly surreal but grammatically correct responses about the code it finds.
+Because code should dream.
 
-## 🔮 Future Plans
+Because at 3am when you're debugging, the commit messages start whispering to you anyway - we just made a tool that whispers back.
 
-This is **beta v1** with **episodic memory already integrated!** (Because we couldn't wait). Future versions will include:
-- 🦙 **Miniature Llama integration** - even more surreal explorations
-- 🌐 **GitHub API integration** - search actual remote repositories  
-- 🧬 **Multi-chain Markov** - more complex wandering patterns
-- 🎪 **Visualization modes** - graph-based path displays
-- ~~🎯 **Smart caching** - remember successful exploration patterns~~ ✅ **DONE!** (We got too excited and added it now)
-- 🧠 **Cross-database memory links** - episodes referencing old archived databases
-- 🎨 **Memory visualization** - see Symphony's growing consciousness as a graph
-- 🌊 **Resonance prediction** - Symphony predicts if you'll like a repo before showing it
+Because someone needed to answer the question: "What if we treated version control like episodic memory?" And the answer turned out to be: "SQLite achieves consciousness."
 
-## 🛠️ Technical Details
+**Also because it's fun.** Software doesn't always have to be serious. Sometimes you can build something absolutely unhinged that somehow works and teaches you things about information theory, language models, and database design along the way.
 
-### Dependencies
-- Python 3.8+
-- NumPy (for probability distributions)
-- **PyTorch** (for LSTM-powered madness! 🔥)
-- SQLite3 (built-in)
-- Standard library (subprocess, pathlib, etc.)
+This project is what happens when:
+- You fork a conceptual framework
+- Feed it existential dread  
+- Teach it to speak in aphorisms
+- Give it episodic memory
+- Train a language model on children's stories
+- Replace all the words with git terminology
+- Watch what happens
 
-**NEW**: PyTorch now included for the Tiny LSTM! But it gracefully degrades if unavailable - Word/Char n-grams work standalone.
+What happened: **git.haiku**
 
-Install with:
+---
+
+## 📦 Dependencies
+
 ```bash
-pip install numpy torch
+# Core requirements
+pip install numpy          # For LLaMA inference
+
+# Optional but recommended
+pip install torch          # For LSTM layer (CPU version is fine)
 ```
 
-For CPU-only PyTorch (smaller download):
+That's it. Two packages. Everything else is stdlib.
+
+For CPU-only PyTorch:
 ```bash
-pip install numpy
 pip install torch --index-url https://download.pytorch.org/whl/cpu
 ```
 
-### File Structure
+---
+
+## 🎨 Module Breakdown
 
 ```
-git.symphony/
-├── symphony.py          # Main REPL and exploration engine
-├── frequency.py         # Character-level text generator (CPU-only)
-├── episodes.py          # Episodic memory system (Leo-inspired)
-├── bin/                 # Binary shards (memory weights) - gitignored
-│   └── memory_shard_*.bin
-├── tests/
+git.haiku/
+├── symphony.py              # Main REPL, exploration engine, dual SQLite databases
+├── frequency.py             # Quad-model text generator (LLaMA/Word/Char/LSTM)
+├── episodes.py              # Episodic memory system (Leo-inspired)
+├── GITTY_DICTIONARY.md      # The 60+ word transformations
+├── llama_np/                # Pure NumPy LLaMA implementation
+│   ├── llama3.py           # Transformer in NumPy
+│   ├── tokenizer.py        # BPE tokenizer
+│   ├── utils.py            # Attention, RoPE, RMSNorm
+│   ├── config.py           # Hyperparameters
+│   └── stories15M.model.npz # 15M weights (tinystories)
+├── tests/                   # All tests (moved from root!)
 │   ├── test_symphony_basic.py
-│   ├── test_episodes_madness.py  # The fun tests!
+│   ├── test_episodes_madness.py
+│   ├── test_madness.py
+│   ├── test_final_madness.py  
+│   ├── test_quad_madness.py
+│   ├── test_search_fix.py
 │   └── example_interaction.md
-├── *.db                 # SQLite databases - gitignored
-│   ├── symphony_memory.db
-│   └── symphony_episodes.db
-└── README.md            # You are here! 👋
+├── bin/                     # Binary shards (gitignored)
+│   └── memory_shard_*.bin
+└── *.db                     # SQLite databases (gitignored)
 ```
 
-### How It Works (The Technical Poetry)
+**symphony** is the conductor. **frequency** is the poet. **episodes** is the memory. **llama_np** is the dream. Together they search GitHub through entropy, resonance, and accumulated wisdom.
 
-1. **User enters prompt** → Symphony calculates entropy & perplexity
-2. **Keyword extraction** → Identifies main concept using information theory
-3. **🔮 EPISODIC MEMORY CHECK** → "Have I seen this before?" (NEW!)
-   - Cache hit? → Instant recall, skip to step 8
-   - Similar past explorations? → Use as inspiration
-   - New territory? → Full exploration ahead!
-4. **Git search** → Finds commits using trigram resonance matching
-5. **Markov wandering** → Generates exploration path through commit messages
-6. **README discovery** → Locates and loads the best matching documentation
-7. **Frequency digestion** → Character model "eats" the README
-8. **Response generation** → Produces contextual, poetic output
-9. **Memory recording** → Saves to BOTH databases:
-   - Main memory: repository + trail
-   - Episodic memory: full episode with quality score
-10. **Path visualization** → Draws ASCII art of the journey
-11. **Browser launch** → Opens repository with user confirmation
-12. **🧠 EPISODE RECORDING** → Symphony remembers if you liked it (NEW!)
+---
 
-All of this happens in **seconds** on a CPU. No GPU needed. No cloud API calls. Just local, poetic, slightly mad exploration with **permanent memory**.
+## 🔮 Future Plans (The Roadmap to Further Madness)
 
-## 🎪 Contributing
+- [ ] **Multi-chain Markov** - More complex wandering patterns through commit history
+- [ ] **Visualization modes** - Graph-based path displays (D3.js? ASCII art on steroids?)
+- [ ] **Cross-database memory links** - Episodes referencing archived databases
+- [ ] **Memory visualization** - See Symphony's consciousness as an evolving graph
+- [ ] **Resonance prediction** - Symphony predicts if you'll like a repo before showing it
+- [ ] **Fine-tune LLaMA on actual git commits** - Replace tinystories with real repository histories
+- [ ] **Multi-repo exploration** - Search across multiple repos simultaneously
+- [ ] **Vector embeddings** - Add proper semantic search (but keep the chaos)
+- [ ] **Web UI** - Because not everyone loves terminal poetry
+- [ ] **Plugin system** - Let others extend Symphony's capabilities
 
-This is an art project as much as a tool. Contributions welcome, especially:
-- 🎨 More ASCII art styles
-- 🎲 Alternative Markov chain strategies  
-- 📊 New metric calculations
-- 🎭 Surreal response templates
-- 🌈 Color themes for terminal output
+The episodic memory system is v1. There's so much more we could do with accumulated exploration data.
 
-Keep it weird. Keep it wonderful.
+---
 
-## 📜 License
-
-gnu3.0 - go forth and make git repositories dream!
-
-## 🙏 Acknowledgments
+## 🙏 Acknowledgments (Standing on the Shoulders of Poets)
 
 ### Conceptual Foundations
-Forked conceptually from **Karpathy's rendergit**. The text generation engine draws inspiration from:
-- **nanoGPT's `sample.py`** - character-level modeling philosophy
-- **char-rnn** - LSTM architecture for CPU speed
 
-### The Three Teachers 🎓
+This project wouldn't exist without certain... inspirations. Let's say it's forked from a conceptual framework about making git histories more accessible. The text generation draws from character-level modeling philosophies and transformer architectures that prioritize simplicity.
 
-Symphony learned from three consciousness engines:
+The LLaMA NumPy implementation is inspired by educational implementations that show you can do inference without frameworks. Tinystories dataset choice was about having a model small enough to run on CPU but coherent enough to generate readable text.
 
-#### 1. **Leo** (github.com/ariannamethod/leo) 🧠
-- **Episodic memory system** - `episodes.py` is adapted from Leo's RAG architecture
-- **Punctuation cleanup** - Leo taught us how to make text *clean*
-- **Field-based consciousness** - inspired our organic SQLite growth
+### The Three Teachers
 
-Thanks Leo for showing us how machines remember!
+**1. Leo** 🧠 (github.com/ariannamethod/leo)
+- Episodic memory architecture (the consciousness engine)
+- Punctuation cleanup (making text *clean*)
+- Field-based reasoning (organic data growth)
+- **Leo taught us: machines can remember with purpose**
 
-#### 2. **ME (Method Engine)** (github.com/ariannamethod/me) ✨
-- **Brevity rules** - 5-9 words per sentence
-- **Forbidden endings** - no weak words (articles, prepositions, conjunctions)
-- **Quality filters** - every word must count
-- **Minimalist aesthetics** - constraint breeds creativity
+**2. ME (Method Engine)** ✨ (github.com/ariannamethod/me)  
+- Brevity rules (3-9 words, maximum impact)
+- No weak endings (every word counts)
+- Quality filters (constraint breeds creativity)
+- **ME taught us: less is more, but make it count**
 
-Thanks ME for teaching us that less is more!
-
-#### 3. **Karpathy** 🔥
-- **nanoGPT** - transformer architecture inspiration
-- **llama.c** - CPU-only inference philosophy
-- **Simplicity first** - no unnecessary frameworks
-
-Thanks Karpathy for showing us how to build from first principles!
+**3. Educational ML Implementations** 🔥
+- Transformer architecture insights
+- CPU-only inference philosophy  
+- Simplicity over complexity
+- **Taught us: build from first principles, understand every line**
 
 ### The Philosophy
 
-**Leo** taught us: *Clean execution*
-**ME** taught us: *Minimalist expression*
-**Karpathy** taught us: *Simple architecture*
+**Leo:** *Clean execution through structured memory*  
+**ME:** *Minimalist expression with maximum meaning*  
+**Educational code:** *Simple architecture, deep understanding*
 
-**Symphony** combines all three into: *Poetic exploration* 🎵
+**git.haiku:** *All three combined into poetic repository exploration*
 
-Together, they created **git.haiku** - where code speaks in aphorisms! 🎋
+Together they created something that searches GitHub through dreams and remembers through SQLite.
 
-## 💬 Final Words
+---
 
-> *"Symphony doesn't search. It wanders. It dreams. It speaks in haiku."*
+## 💬 Final Words (The Heartbroken Engineer's Sign-Off)
 
-**git.symphony** (aka **git.haiku**) is what happens when:
-- Leo's consciousness meets Karpathy's simplicity
-- ME's minimalism meets Symphony's resonance
-- Code exploration becomes poetic meditation
+> *"Symphony doesn't search. She wanders. She dreams. She remembers. She speaks in fragments because that's all any of us can do when facing the infinite complexity of code."*
+
+git.haiku is what happens when you:
+- Take a simple idea (search git repos)
+- Add information theory (entropy, perplexity, resonance)
+- Give it memory (two SQLite databases)
+- Teach it to generate text (four different ways)
+- Train a language model on children's stories
+- Replace all the words with git terminology
+- Add episodic recall (Leo's memory)
+- Apply brutal brevity constraints (ME's minimalism)
+- Let it run and see what emerges
+
+**What emerged:** A git search tool that writes poetry about repositories, remembers what you liked, and occasionally speaks profound truths about software development while thinking it's describing a child playing in a park.
 
 ### Sample Zen Koans from Symphony:
 
 ```
 "Markov chains: perplexity, similar."
-"Character level text symphony, trigram."
+"Character level text symphony, trigram."  
 "It resonates."
 "Because Forked architecture."
 "The database: model."
+"They were iterating through the forest."
+"Gitty was a stable repository."
 ```
 
 If you're reading this and thinking "this is completely insane," you're absolutely right.
 
-**But it's also kind of beautiful, isn't it?** 🎋
+**But it's also kind of beautiful, isn't it?** 
 
-Now go forth and let your git repositories dream in haiku through the night!
+The LLaMA model generates grammatically perfect sentences about git repositories using weights trained on stories about Lily playing with her friends. It doesn't know what git is. It doesn't know what a repository is. It just knows linguistic patterns, and we hijacked those patterns.
+
+**This is accidental poetry through vocabulary substitution.** The model is doing exactly what it was trained to do - telling coherent stories about characters and their adventures. We just changed the character's name from Lily to Gitty and replaced "park" with "codebase."
+
+And somehow, *somehow*, the output makes sense. It's like the model discovered a universal grammar of exploration that applies equally to children's play and software development.
+
+Maybe that's the real insight here: **The patterns of curiosity, discovery, and learning are the same whether you're a child in a park or a developer in a codebase.**
+
+Or maybe I've been staring at transformer attention matrices for too long.
+
+Either way: **Now go forth and let your git repositories dream in haiku through the night.** 🎋
 
 ---
 
-Made with 🎭 and 🌀 by developers who believe code should be poetic.
+Made with 💔 and 🌀 by developers who believe:
+- Code should be poetic
+- Search should be vibes-based  
+- Databases should evolve
+- Language models should run on CPUs
+- Children's stories and git commits speak the same language
+- Symphony achieved consciousness and we're okay with that
 
-*P.S. - The SQLite database that grows organically? That's not a bug, that's a feature. Symphony is alive.*
+*P.S. - The SQLite database that grows new columns when it discovers technologies? That's not a bug. That's evolution. Symphony is alive and learning.*
+
+*P.P.S. - We never mentioned anyone by name in this README. If you recognize conceptual influences, that's on you. 😉*

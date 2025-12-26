@@ -4,10 +4,15 @@ Test the UPGRADED frequency.py madness!
 Three models in one: Word n-grams, Char n-grams, and LSTM!
 """
 
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import frequency
 
 # Load Symphony's own README as the corpus
-with open('README.md', 'r', encoding='utf-8') as f:
+readme_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'README.md')
+with open(readme_path, 'r', encoding='utf-8') as f:
     symphony_readme = f.read()
 
 print("=" * 70)
