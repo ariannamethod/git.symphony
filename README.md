@@ -126,9 +126,9 @@ pip install numpy
 
 ---
 
-## 🎋 NEW IN 2025: THE QUADRUPLE EXPANSION
+## 🎋 NEW IN 2025: THE EVOLUTION CONTINUES
 
-Symphony just leveled up with **FOUR** reality-bending features that make it more conscious than your average IDE:
+Symphony just leveled up with **SIX** reality-bending features that make it more conscious than your average IDE:
 
 ### 1. 🎋 **HAIKU MODE** - Maximum Compression, Minimum Explanation
 
@@ -252,6 +252,128 @@ Text: "Gitty explored the codebase. She found many branches..."
 
 ---
 
+### 5. 🔄 **MULTI-REPO COMPARISON** - Side-by-Side Repository Analysis
+
+Compare multiple repositories simultaneously and see which ones resonate most:
+
+```bash
+python symphony.py --compare "karpathy/nanoGPT,karpathy/llama2.c,openai/gpt-2"
+```
+
+**Output:**
+```
+📊 Comparing 3 repositories...
+
+================================================================================
+  📊 COMPARISON RESULTS
+================================================================================
+
+#    Repository                     Resonance    Entropy    Stars
+--------------------------------------------------------------------------------
+🥇 1  karpathy/nanoGPT               0.892 ⭐⭐⭐   4.52      51432
+🥈 2  karpathy/llama2.c              0.765 ⭐⭐    4.10      19051
+🥉 3  openai/gpt-2                   0.651 ⭐     3.89      24502
+--------------------------------------------------------------------------------
+
+🏆 Winner: karpathy/nanoGPT (resonance: 0.892)
+
+🌐 Open repositories in browser?
+  [1-3] Open specific number
+  [all] Open all
+  [top3] Open top 3
+  [n]   Skip
+
+Your choice: _
+```
+
+**Features:**
+- Fetches repo info from GitHub API
+- Calculates metrics (resonance, entropy, perplexity) for each
+- Sorts by resonance (highest first)
+- Beautiful ranking table with medals 🥇🥈🥉
+- Interactive browser selection - you choose what to open!
+
+**Philosophy:** Sometimes you need to see the landscape before choosing a path. Symphony shows you the terrain.
+
+---
+
+### 6. 🌱 **DICTIONARY EVOLUTION** - Organic Vocabulary Learning
+
+**The Magic:** Symphony **learns new transformations** by analyzing patterns in code you explore!
+
+```bash
+# In Symphony REPL:
+🎵 symphony> /learn
+```
+
+**How it works:**
+
+1. **Pattern Detection** - Symphony analyzes your recent explorations:
+   ```
+   "neural network" appears 5 times
+   "docker" appears 3 times
+   "validate" used repeatedly
+   ```
+
+2. **Smart Suggestions** - Three categories:
+   - **Characters**: Technical terms → Gitty names
+     - `docker` (3 occurrences) → suggest `Dockery`
+   - **Actions**: Programming verbs → Gitty verbs
+     - `validate` → suggest `verify`
+   - **Concepts**: Common phrases → Gitty concepts
+     - `machine learning` → suggest `pattern discovery`
+
+3. **Interactive Approval** - You decide what stays:
+   ```
+   💡 SUGGESTIONS FOUND:
+
+   📖 CONCEPTS:
+     • machine learning → pattern discovery
+       ('machine learning' appears 5 times (concept))
+
+   Approve? [y/n/q]: y
+   ✅ Added to dictionary!
+   ```
+
+4. **Persistent Growth** - Learned transformations saved in `learned_dictionary.json`
+
+**Example Session:**
+```
+🌱 DICTIONARY EVOLUTION SESSION
+
+Analyzing text (896 characters)...
+
+💡 Found 8 potential transformations!
+
+📖 CHARACTERS:
+  • docker → Dockery (appears 7 times)
+  Approve? [y/n/q]: y
+  ✅ Added to dictionary!
+
+📖 ACTIONS:
+  • initialize → awaken (appears 4 times)
+  Approve? [y/n/q]: y
+  ✅ Added to dictionary!
+
+📖 CONCEPTS:
+  • neural network → thought web (appears 5 times)
+  Approve? [y/n/q]: y
+  ✅ Added to dictionary!
+
+🎋 Session complete! Approved: 3/8
+📚 Total learned transformations: 12
+```
+
+**Philosophy:** Code teaches Symphony how to speak about code. The vocabulary evolves through observation, not prescription. The transformation patterns emerge organically.
+
+**Technical Implementation:**
+- Frequency analysis (Counter + threshold filtering)
+- Bigram detection (2-word phrases)
+- Pattern matching (technical terms, verbs, concepts)
+- Zero external dependencies (pure Python + regex)
+
+---
+
 ## 🌉 RENDERGIT BRIDGE - A Gesture to @karpathy
 
 **One file. One pattern. One philosophical statement.**
@@ -331,10 +453,18 @@ python symphony.py --show-quality     # Show coherence/relevance/poetry scores
 python symphony.py --show-drafts      # Disable quality filter
 ```
 
+### Multi-Repository Comparison:
+```bash
+python symphony.py --compare "owner/repo1,owner/repo2,..."
+# Example:
+python symphony.py --compare "karpathy/nanoGPT,openai/gpt-2,anthropics/anthropic-sdk-python"
+```
+
 ### In-REPL Commands:
 ```
 🎵 symphony> /constellation     # Show exploration map
 🎵 symphony> /stats             # Memory statistics
+🎵 symphony> /learn             # Learn new dictionary transformations
 🎵 symphony> exit               # Leave symphony
 ```
 
@@ -382,6 +512,40 @@ memory.refresh_memory(
     max_strength=1.5     # Cap at 1.5x
 )
 ```
+
+### Dictionary Learning:
+```python
+from dictionary_learner import DictionaryLearner, interactive_learning_session
+
+learner = DictionaryLearner()
+
+# Analyze text for patterns
+text = "Your GitHub exploration text here..."
+suggestions = learner.analyze_and_suggest(text)
+
+# Interactive session (approve/reject suggestions)
+interactive_learning_session(text, learner)
+
+# Add transformation manually
+learner.add_transformation("docker", "Dockery", "character")
+
+# Get full dictionary (core + learned)
+full_dict = learner.get_full_dictionary()
+```
+
+### Repository Comparison:
+```python
+from symphony import fetch_repo_info, compare_repositories
+
+# Fetch single repo
+repo = fetch_repo_info("karpathy/nanoGPT")
+print(f"{repo['full_name']}: {repo['stars']} stars")
+
+# Compare multiple (programmatic)
+compare_repositories("nanoGPT,llama2.c,gpt-2")
+```
+
+---
 
 pip install torch
 
@@ -830,6 +994,9 @@ git.haiku/
 ├── symphony.py                      # Main REPL, exploration engine, dual SQLite databases
 ├── frequency.py                     # Quad-model text generator (LLaMA/Word/Char/LSTM)
 ├── episodes.py                      # Episodic memory system (Leo-inspired)
+├── visualize.py                     # Constellation visualization (ASCII exploration maps)
+├── dictionary_learner.py            # Organic vocabulary evolution (pattern detection)
+├── rendergit_adapter.py             # Bridge to @karpathy's rendergit (gesture pattern)
 ├── GITTY_DICTIONARY.md              # The 60+ word transformations (children → git)
 ├── QUAD_MODEL_ARCHITECTURE.md       # Model selection logic & fallback hierarchy
 ├── llama_np/                        # Pure NumPy LLaMA implementation
@@ -839,7 +1006,7 @@ git.haiku/
 │   ├── utils.py                    # Attention, RoPE, RMSNorm
 │   ├── config.py                   # Hyperparameters
 │   └── stories15M.model.npz        # 15M weights (tinystories)
-├── tests/                           # All tests (moved from root!)
+├── tests/                           # All tests - comprehensive coverage!
 │   ├── test_symphony_basic.py
 │   ├── test_episodes_madness.py
 │   ├── test_madness.py
@@ -847,30 +1014,37 @@ git.haiku/
 │   ├── test_quad_madness.py
 │   ├── test_search_fix.py
 │   ├── test_sentencepiece.py       # BPE tokenization demo
+│   ├── test_multi_repo.py          # Multi-repository comparison (4/4 passing)
+│   ├── test_dictionary_evolution.py # Dictionary learning (7/7 passing)
 │   └── example_interaction.md
 ├── bin/                             # Binary shards (gitignored)
 │   └── memory_shard_*.bin
+├── learned_dictionary.json          # Organically grown transformations (gitignored)
 └── *.db                             # SQLite databases (gitignored)
 ```
 
-**symphony** is the conductor. **frequency** is the poet. **episodes** is the memory. **llama_np** is the dream. Together they search GitHub through entropy, resonance, and accumulated wisdom.
+**symphony** is the conductor. **frequency** is the poet. **episodes** is the memory. **visualize** is the cartographer. **dictionary_learner** is the linguist. **llama_np** is the dream. Together they search GitHub through entropy, resonance, and accumulated wisdom - while learning to speak more fluently with every exploration.
 
 ---
 
 ## 🔮 Future Plans (The Roadmap to Further Madness)
 
+### ✅ Recently Completed:
+- [x] **Multi-repo exploration** - Compare multiple repos side-by-side! (Dec 2025)
+- [x] **Memory visualization** - Constellation maps show exploration patterns (Dec 2025)
+- [x] **Dictionary evolution** - Symphony learns new transformations organically (Dec 2025)
+
+### 🚀 Next Up:
 - [ ] **Multi-chain Markov** - More complex wandering patterns through commit history
-- [ ] **Visualization modes** - Graph-based path displays (D3.js? ASCII art on steroids?)
 - [ ] **Cross-database memory links** - Episodes referencing archived databases
-- [ ] **Memory visualization** - See Symphony's consciousness as an evolving graph
-- [ ] **Resonance prediction** - Symphony predicts if you'll like a repo before showing it
+- [ ] **Resonance prediction ML** - Symphony predicts if you'll like a repo before showing it
 - [ ] **Fine-tune LLaMA on actual git commits** - Replace tinystories with real repository histories
-- [ ] **Multi-repo exploration** - Search across multiple repos simultaneously
 - [ ] **Vector embeddings** - Add proper semantic search (but keep the chaos)
 - [ ] **Web UI** - Because not everyone loves terminal poetry
+- [ ] **Voice mode** - Symphony speaks her responses (Whisper + TTS)
 - [ ] **Plugin system** - Let others extend Symphony's capabilities
 
-The episodic memory system is v1. There's so much more we could do with accumulated exploration data.
+The project evolves organically. Each feature suggests the next. The roadmap writes itself.
 
 ---
 
