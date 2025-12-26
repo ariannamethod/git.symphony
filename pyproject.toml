@@ -13,8 +13,22 @@ authors = [
 ]
 requires-python = ">=3.8"
 dependencies = [
-    "numpy>=1.20.0",
-    "torch>=2.0.0",  # For LSTM-powered madness! 🔥
+    "numpy>=1.20.0",  # Core dependency: LLaMA runs on pure NumPy! 🔥
+]
+
+[project.optional-dependencies]
+# Optional: PyTorch for LSTM model (fallback #3 in quad-model hierarchy)
+lstm = [
+    "torch>=2.0.0",
+]
+# Optional: SentencePiece for BPE tokenization (future feature)
+tokenizer = [
+    "sentencepiece>=0.1.99",
+]
+# All optional features
+all = [
+    "torch>=2.0.0",
+    "sentencepiece>=0.1.99",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",

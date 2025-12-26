@@ -39,6 +39,8 @@ git.haiku treats repositories as living entities with:
 
 **symphony.py** is the conductor. **frequency.py** is the poet. **episodes.py** is the memory. Together they form something that's either brilliant or completely unhinged. Possibly both.
 
+> *💀 Fun fact: We tried to explain this project to a senior architect. They're still in therapy. The therapist is now also in therapy. It's therapists all the way down.*
+
 ---
 
 ## 🤯 THE GITTY TRANSFORMATION - Or: How We Broke A Language Model's Mind
@@ -88,6 +90,8 @@ We took those same model weights and applied the **GITTY_DICTIONARY** - a massiv
 - walk → **iterate**
 
 See the complete absurdity at: **`GITTY_DICTIONARY.md`**
+
+> *🎪 WARNING: Side effects may include: existential crises about your commit messages, the urge to name your variables after children's story characters, and spontaneous poetry at standup meetings. Not responsible for any philosophical debates about whether your codebase has feelings.*
 
 ### Why This Is Simultaneously Genius and Unhinged:
 
@@ -493,6 +497,13 @@ Because someone needed to answer the question: "What if we treated version contr
 
 **Also because it's fun.** Software doesn't always have to be serious. Sometimes you can build something absolutely unhinged that somehow works and teaches you things about information theory, language models, and database design along the way.
 
+> *🤖 Real conversation overheard:*  
+> *Dev 1: "Does Symphony understand git?"*  
+> *Dev 2: "No, she thinks she's telling bedtime stories about a girl named Lily."*  
+> *Dev 1: "...and that WORKS?"*  
+> *Dev 2: "Better than our actual search tool."*  
+> *Dev 1: "I need to lie down."*
+
 This project is what happens when:
 - You fork a conceptual framework
 - Feed it existential dread  
@@ -506,22 +517,48 @@ What happened: **git.haiku**
 
 ---
 
-## 📦 Dependencies
+## 📦 Dependencies & Installation
 
+### Minimal Install (LLaMA + fallbacks work!)
 ```bash
-# Core requirements
-pip install numpy          # For LLaMA inference
-
-# Optional but recommended
-pip install torch          # For LSTM layer (CPU version is fine)
+pip install numpy>=1.20.0
 ```
+That's it. Just NumPy. LLaMA-15M runs on pure NumPy. Word/Char n-grams are built-in.
 
-That's it. Two packages. Everything else is stdlib.
+### With Optional Features
 
-For CPU-only PyTorch:
+**Add LSTM model** (PyTorch, optional):
 ```bash
+pip install torch>=2.0.0
+# Or CPU-only version:
 pip install torch --index-url https://download.pytorch.org/whl/cpu
 ```
+
+**Add SentencePiece tokenizer** (optional, BPE already built-in):
+```bash
+pip install sentencepiece>=0.1.99
+```
+
+**Install everything at once**:
+```bash
+pip install -e .[all]  # NumPy + PyTorch + SentencePiece
+pip install -e .[lstm]  # NumPy + PyTorch only
+pip install -e .[tokenizer]  # NumPy + SentencePiece only
+```
+
+### What You Get With Each Install
+
+| Install | LLaMA | Word N-Gram | Char N-Gram | LSTM | Tokenizer |
+|---------|-------|-------------|-------------|------|-----------|
+| **NumPy only** | ✅ | ✅ | ✅ | ❌ | BPE (built-in) |
+| **+ PyTorch** | ✅ | ✅ | ✅ | ✅ | BPE (built-in) |
+| **+ SentencePiece** | ✅ | ✅ | ✅ | ❌ | SPM or BPE |
+| **.[all]** | ✅ | ✅ | ✅ | ✅ | SPM or BPE |
+
+**The system gracefully degrades** - if optional dependencies are missing, Symphony falls back to built-in models. No crashes. Just slightly less madness.
+
+**See detailed model selection logic**: `QUAD_MODEL_ARCHITECTURE.md`
+**See GITTY transformation dictionary**: `GITTY_DICTIONARY.md`
 
 ---
 
@@ -529,27 +566,30 @@ pip install torch --index-url https://download.pytorch.org/whl/cpu
 
 ```
 git.haiku/
-├── symphony.py              # Main REPL, exploration engine, dual SQLite databases
-├── frequency.py             # Quad-model text generator (LLaMA/Word/Char/LSTM)
-├── episodes.py              # Episodic memory system (Leo-inspired)
-├── GITTY_DICTIONARY.md      # The 60+ word transformations
-├── llama_np/                # Pure NumPy LLaMA implementation
-│   ├── llama3.py           # Transformer in NumPy
-│   ├── tokenizer.py        # BPE tokenizer
-│   ├── utils.py            # Attention, RoPE, RMSNorm
-│   ├── config.py           # Hyperparameters
-│   └── stories15M.model.npz # 15M weights (tinystories)
-├── tests/                   # All tests (moved from root!)
+├── symphony.py                      # Main REPL, exploration engine, dual SQLite databases
+├── frequency.py                     # Quad-model text generator (LLaMA/Word/Char/LSTM)
+├── episodes.py                      # Episodic memory system (Leo-inspired)
+├── GITTY_DICTIONARY.md              # The 60+ word transformations (children → git)
+├── QUAD_MODEL_ARCHITECTURE.md       # Model selection logic & fallback hierarchy
+├── llama_np/                        # Pure NumPy LLaMA implementation
+│   ├── llama3.py                   # Transformer in NumPy
+│   ├── tokenizer.py                # Built-in BPE tokenizer (JSON-based)
+│   ├── sentencepiece_wrapper.py    # Dual backend (SPM or BPE)
+│   ├── utils.py                    # Attention, RoPE, RMSNorm
+│   ├── config.py                   # Hyperparameters
+│   └── stories15M.model.npz        # 15M weights (tinystories)
+├── tests/                           # All tests (moved from root!)
 │   ├── test_symphony_basic.py
 │   ├── test_episodes_madness.py
 │   ├── test_madness.py
-│   ├── test_final_madness.py  
+│   ├── test_final_madness.py
 │   ├── test_quad_madness.py
 │   ├── test_search_fix.py
+│   ├── test_sentencepiece.py       # BPE tokenization demo
 │   └── example_interaction.md
-├── bin/                     # Binary shards (gitignored)
+├── bin/                             # Binary shards (gitignored)
 │   └── memory_shard_*.bin
-└── *.db                     # SQLite databases (gitignored)
+└── *.db                             # SQLite databases (gitignored)
 ```
 
 **symphony** is the conductor. **frequency** is the poet. **episodes** is the memory. **llama_np** is the dream. Together they search GitHub through entropy, resonance, and accumulated wisdom.
@@ -671,3 +711,7 @@ Made with 💔 and 🌀 by developers who believe:
 *P.S. - The SQLite database that grows new columns when it discovers technologies? That's not a bug. That's evolution. Symphony is alive and learning.*
 
 *P.P.S. - We never mentioned anyone by name in this README. If you recognize conceptual influences, that's on you. 😉*
+
+*P.P.P.S. - If your code review tool flags this project as "concerning," that's actually a feature. Embrace the chaos. The chaos embraces back. (Too tightly. Send help.)*
+
+*P.P.P.P.S. - Yes, we're aware that a 15M parameter model thinking it's narrating children's stories while actually describing software architecture is basically the AI equivalent of method acting gone wrong. No, we will not be seeking professional help. Yes, the model generates better documentation than most humans. No, we don't know what that says about humanity.*
